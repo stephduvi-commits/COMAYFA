@@ -963,9 +963,9 @@ function buildEvents(){
     const d2=e[LANG]||e.fr||{};
     const newDot=e.isNew?'<span class="new-dot" title="Nouveau"></span>':'';
     return `<div class="event-card">
-      <div class="event-date"><div class="day">${e.emoji?`<span style="font-size:22px">${e.emoji}</span>`:esc(e.jour)}</div><div class="month">${esc(tl(e.mois))}</div></div>
-      <div class="event-body"><div class="event-title">${esc(d2.titre||'')}${newDot}</div><div class="event-desc">${esc(d2.desc||'')}</div>
-      <div class="event-time">${e.jour?`<span style="font-weight:700;margin-right:4px">${esc(e.jour)}</span>`:''}${SVGS.clock.replace('currentColor','var(--accent-dk)')} ${esc(e.heure||'')}</div></div>
+      <div class="event-date"><div class="day">${esc(e.jour)}</div><div class="month">${esc(tl(e.mois))}</div></div>
+      <div class="event-body"><div class="event-title">${e.emoji?`<span style="margin-right:5px">${e.emoji}</span>`:''}${esc(d2.titre||'')}${newDot}</div><div class="event-desc">${esc(d2.desc||'')}</div>
+      <div class="event-time">${SVGS.clock.replace('currentColor','var(--accent-dk)')} ${esc(e.heure||'')}</div></div>
     </div>`;
   }).join('')+`</div>`;
 }

@@ -1321,8 +1321,9 @@ function showTab(id){
    ADMIN
 ═══════════════════════════════════════════════════════ */
 
-function closeAdmin(){document.getElementById('admin-overlay').classList.remove('open');}
-document.getElementById('admin-overlay').addEventListener('click',function(e){if(e.target===this)closeAdmin();});
+function closeAdmin(){const el=document.getElementById('admin-overlay');if(el) el.classList.remove('open');}
+const _adminOverlay=document.getElementById('admin-overlay');
+if(_adminOverlay) _adminOverlay.addEventListener('click',function(e){if(e.target===this)closeAdmin();});
 
 
 

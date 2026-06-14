@@ -1067,46 +1067,43 @@ function updateSplashTexts(){
 
   // Nouveautés
   const items=getNewItems();
-  const newsEl=document.getElementById('splash-news');
-  const newsList=document.getElementById('splash-news-list');
-  if(items.length>0){
-    newsEl.style.display='block';
-    newsList.innerHTML=items.map(it=>`
-      <div class="splash-news-item">
-        <span class="splash-news-badge ${it.type==='event'?'badge-event':'badge-new'}">${it.type==='event'?T.badgeEvent:T.badgeNew}</span>
-        <div class="splash-news-text"><strong>${esc(it.title)}</strong><span>${esc(it.date)}</span></div>
-      </div>`).join('');
-  } else {
-    newsEl.style.display='none';
+  const newsEl=sel('splash-news');
+  const newsList=sel('splash-news-list');
+  if(newsEl){
+    if(items.length>0){
+      newsEl.style.display='block';
+      if(newsList) newsList.innerHTML=items.map(it=>`
+        <div class="splash-news-item">
+          <span class="splash-news-badge ${it.type==='event'?'badge-event':'badge-new'}">${it.type==='event'?T.badgeEvent:T.badgeNew}</span>
+          <div class="splash-news-text"><strong>${esc(it.title)}</strong><span>${esc(it.date)}</span></div>
+        </div>`).join('');
+    } else { newsEl.style.display='none'; }
   }
 
   // Boutons notif
-  const waEl=document.getElementById('splash-wa');
-  const smsEl=document.getElementById('splash-sms');
-  if(DATA.hideNotif||(!DATA.waUrl&&!DATA.smsUrl)){
-    waEl.style.display='none'; smsEl.style.display='none';
-  } else {
-    if(DATA.waUrl){ waEl.style.display='flex'; waEl.href=DATA.waUrl; }
-    else waEl.style.display='none';
-    if(DATA.smsUrl){ smsEl.style.display='flex'; smsEl.href=DATA.smsUrl; }
-    else smsEl.style.display='none';
+  const waEl=sel('splash-wa'); const smsEl=sel('splash-sms');
+  if(waEl&&smsEl){
+    if(DATA.hideNotif||(!DATA.waUrl&&!DATA.smsUrl)){
+      waEl.style.display='none'; smsEl.style.display='none';
+    } else {
+      if(DATA.waUrl){ waEl.style.display='flex'; waEl.href=DATA.waUrl; } else waEl.style.display='none';
+      if(DATA.smsUrl){ smsEl.style.display='flex'; smsEl.href=DATA.smsUrl; } else smsEl.style.display='none';
+    }
   }
 
   // Logo splash
-  // Mise à jour logo splash
-  const splashLogoEl = document.getElementById('splash-logo');
-  if(splashLogoEl) renderLogo(DATA.logo, splashLogoEl);
-  document.getElementById('splash-title').textContent=DATA.titre;
-  document.getElementById('splash-sub').textContent=DATA.sousTitre;
+  const splashLogoEl=sel('splash-logo'); if(splashLogoEl) renderLogo(DATA.logo,splashLogoEl);
+  setText('splash-title',DATA.titre);
+  setText('splash-sub',DATA.sousTitre);
 }
 
 function enterApp(){
   if(!LANG){ showToast('Choisissez une langue !'); return; }
   localStorage.setItem('panneau_lang',LANG);
   localStorage.setItem(LAST_VISIT_KEY, Date.now().toString());
-  const splash=document.getElementById('splash');
+  const splash=sel('splash'); if(!splash) return;
   splash.classList.add('hide');
-  setTimeout(()=>{ splash.style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('admin-fab').style.display='flex'; renderAll(); },400);
+  setTimeout(()=>{ splash.style.display='none'; const app=sel('app');if(app)app.style.display='block'; const fab=sel('admin-fab');if(fab)fab.style.display='flex'; renderAll(); },400);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1124,8 +1121,8 @@ function hexToRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),
 function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('');}
 function darken(h,p){const[r,g,b]=hexToRgb(h),f=(100-p)/100;return rgbToHex(r*f,g*f,b*f);}
 function lighten(h,p){const[r,g,b]=hexToRgb(h),f=p/100;return rgbToHex(r+(255-r)*f,g+(255-g)*f,b+(255-b)*f);}
-function setColor(hex){document.getElementById('cfg-color').value=hex;updateColorPreview();}
-function updateColorPreview(){applyColor(document.getElementById('cfg-color').value);}
+function setColor(hex){const e=sel('cfg-color');if(e)e.value=hex;updateColorPreview();}
+function updateColorPreview(){const e=sel('cfg-color');if(e)applyColor(e.value);}
 
 /* ═══════════════════════════════════════════════════════
    LOGO

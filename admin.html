@@ -1053,14 +1053,17 @@ function getNewItems(){
   return items;
 }
 
+function sel(id){return document.getElementById(id);}
+function setText(id,val){const e=sel(id);if(e) e.textContent=val;}
+
 function updateSplashTexts(){
   const lang=LANG, T=I18N[lang];
-  document.getElementById('btn-enter-text').textContent=T.enterBtn;
-  document.getElementById('splash-news-title-text').textContent=T.newsTitle;
-  document.getElementById('splash-wa-t1').textContent=DATA.waLabelFr&&lang==='nl'?DATA.waLabelNl:DATA.waLabelFr&&lang==='en'?DATA.waLabelEn:DATA.waLabelFr||T.waBtn;
-  document.getElementById('splash-wa-t2').textContent=T.waSub;
-  document.getElementById('splash-sms-t1').textContent=DATA.smsLabelFr&&lang==='nl'?DATA.smsLabelNl:DATA.smsLabelFr&&lang==='en'?DATA.smsLabelEn:DATA.smsLabelFr||T.smsBtn;
-  document.getElementById('splash-sms-t2').textContent=T.smsSub;
+  setText('btn-enter-text',T.enterBtn);
+  setText('splash-news-title-text',T.newsTitle);
+  setText('splash-wa-t1',DATA.waLabelFr&&lang==='nl'?DATA.waLabelNl:DATA.waLabelFr&&lang==='en'?DATA.waLabelEn:DATA.waLabelFr||T.waBtn);
+  setText('splash-wa-t2',T.waSub);
+  setText('splash-sms-t1',DATA.smsLabelFr&&lang==='nl'?DATA.smsLabelNl:DATA.smsLabelFr&&lang==='en'?DATA.smsLabelEn:DATA.smsLabelFr||T.smsBtn);
+  setText('splash-sms-t2',T.smsSub);
 
   // Nouveautés
   const items=getNewItems();
@@ -1160,17 +1163,14 @@ function updateLogoPreview(){
 ═══════════════════════════════════════════════════════ */
 function renderAll(){
   applyColor(DATA.accentColor||'#F49634');
-  // Mettre à jour login logo
-  const llEl=document.getElementById('login-logo-disp');
-  if(llEl) renderLogo(DATA.logo, llEl);
-  document.getElementById('hdr-title').textContent=DATA.titre;
-  document.getElementById('hdr-subtitle').textContent=DATA.sousTitre;
-  document.getElementById('lang-switch-btn').textContent=I18N[LANG].langSwitch;
-  renderLogo(DATA.logo,document.getElementById('hdr-logo-wrap'));
+  const llEl=sel('login-logo-disp'); if(llEl) renderLogo(DATA.logo,llEl);
+  setText('hdr-title',DATA.titre);
+  setText('hdr-subtitle',DATA.sousTitre);
+  setText('lang-switch-btn',I18N[LANG].langSwitch);
+  const hw=sel('hdr-logo-wrap'); if(hw) renderLogo(DATA.logo,hw);
   const now=new Date();
-  document.getElementById('hdr-date').innerHTML=
-    now.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{weekday:'short',day:'numeric',month:'short'}).replace(/^\w/,c=>c.toUpperCase())+'<br>'+
-    now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  const hd=sel('hdr-date');
+  if(hd) hd.innerHTML=now.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{weekday:'short',day:'numeric',month:'short'}).replace(/^\w/,c=>c.toUpperCase())+'<br>'+now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
   renderNavTabs();
   renderPanels();
 }

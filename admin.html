@@ -1627,6 +1627,7 @@ function buildAdminEvents(){
         <div><label>Mois NL</label><input type="text" id="em-${i}-nl" value="${escVal(mois.nl||'')}"></div>
       </div>
       <input type="text" id="em-${i}-en" placeholder="Mois EN" value="${escVal(mois.en||'')}">
+      <div><label>Emoji</label><input type="text" id="ee-${i}" value="${escVal(e.emoji||'')}" placeholder="ex: 🎂 🎵 🏃" maxlength="4" style="font-size:22px;width:80px"></div>
       <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;cursor:pointer">
         <input type="checkbox" id="enew-${i}" ${e.isNew?'checked':''} style="width:auto;margin:0;padding:0"> Marquer comme nouveau
       </label>
@@ -1735,7 +1736,7 @@ function saveAll(){
       });
     } else if(selTab.type==='evenements'){
       DATA.events=DATA.events.map((_,i)=>{
-        const obj={jour:document.getElementById(`ej-${i}`)?.value.trim()||'',heure:document.getElementById(`eh-${i}`)?.value.trim()||'',isNew:document.getElementById(`enew-${i}`)?.checked||false,
+        const obj={jour:document.getElementById(`ej-${i}`)?.value.trim()||'',heure:document.getElementById(`eh-${i}`)?.value.trim()||'',isNew:document.getElementById(`enew-${i}`)?.checked||false,emoji:document.getElementById(`ee-${i}`)?.value.trim()||'',
           mois:{fr:document.getElementById(`em-${i}-fr`)?.value.trim()||'',nl:document.getElementById(`em-${i}-nl`)?.value.trim()||'',en:document.getElementById(`em-${i}-en`)?.value.trim()||''}};
         ['fr','nl','en'].forEach(lg=>{obj[lg]={titre:document.getElementById(`et-${i}-${lg}`)?.value.trim()||'',desc:document.getElementById(`ed-${i}-${lg}`)?.value.trim()||''};});
         return obj;

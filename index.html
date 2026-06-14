@@ -341,7 +341,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
 </div>
 
-<button id="admin-fab" onclick="openAdmin()" title="Admin" style="display:none">
+
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
 </button>
 <div id="toast"></div>
@@ -802,7 +802,7 @@ function enterApp(){
   localStorage.setItem(LAST_VISIT_KEY, Date.now().toString());
   const splash=document.getElementById('splash');
   splash.classList.add('hide');
-  setTimeout(()=>{ splash.style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('admin-fab').style.display='flex'; renderAll(); },400);
+  setTimeout(()=>{ splash.style.display='none'; document.getElementById('app').style.display='block'; renderAll(); },400);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -957,9 +957,9 @@ function buildEvents(){
     const d2=e[LANG]||e.fr||{};
     const newDot=e.isNew?'<span class="new-dot" title="Nouveau"></span>':'';
     return `<div class="event-card">
-      <div class="event-date"><div class="day">${esc(e.jour)}</div><div class="month">${esc(tl(e.mois))}</div></div>
+      <div class="event-date"><div class="day">${e.emoji?`<span style="font-size:22px">${e.emoji}</span>`:esc(e.jour)}</div><div class="month">${esc(tl(e.mois))}</div></div>
       <div class="event-body"><div class="event-title">${esc(d2.titre||'')}${newDot}</div><div class="event-desc">${esc(d2.desc||'')}</div>
-      <div class="event-time">${SVGS.clock.replace('currentColor','var(--accent-dk)')} ${esc(e.heure||'')}</div></div>
+      <div class="event-time">${e.jour?`<span style="font-weight:700;margin-right:4px">${esc(e.jour)}</span>`:''}${SVGS.clock.replace('currentColor','var(--accent-dk)')} ${esc(e.heure||'')}</div></div>
     </div>`;
   }).join('')+`</div>`;
 }
@@ -1061,7 +1061,7 @@ function renderNavGrid(){
   const greetIcon = hour<12?'☀️':hour<18?'🌤️':'🌙';
   const greetTitle = {fr:{0:'Bonjour',18:'Bonsoir',12:'Bon après-midi'},nl:{0:'Goedemorgen',18:'Goedenavond',12:'Goedemiddag'},en:{0:'Good morning',18:'Good evening',12:'Good afternoon'}};
   const gk = hour<12?0:hour<18?12:18;
-  const greetSub = {fr:'Que recherchez-vous ?',nl:'Wat zoekt u ?',en:'What are you looking for?'};
+  const greetSub = {fr:'Consultez vos informations',nl:'Raadpleeg uw informatie',en:'Browse your information'};
   const gi = document.getElementById('greeting-icon');
   const gt = document.getElementById('greeting-title');
   const gs = document.getElementById('greeting-sub');

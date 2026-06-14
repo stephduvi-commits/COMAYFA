@@ -180,7 +180,9 @@ main{padding:12px 12px 100px;}
 .form-section{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:14px;}
 .form-section-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
 label{font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
-input[type=text],input[type=tel],input[type=password],input[type=date],input[type=url],input[type=color],textarea,select{width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;background:var(--white);color:var(--text);margin-bottom:10px;-webkit-appearance:none;appearance:none;}
+/* Masquer icônes injectées par extensions navigateur */
+input[style*="background-image"]{background-image:none!important;}
+[class*="psono"],[class*="bitwarden"],[class*="lastpass"],[class*="dashlane"]{display:none!important;}width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;background:var(--white);color:var(--text);margin-bottom:10px;-webkit-appearance:none;appearance:none;}
 input[type=color]{padding:6px;height:44px;cursor:pointer;}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(244,150,52,.15);}
 textarea{resize:vertical;min-height:72px;}

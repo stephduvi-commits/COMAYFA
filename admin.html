@@ -1838,8 +1838,9 @@ function checkPwd(){
   const val = document.getElementById('admin-pwd').value;
   const stored = sessionStorage.getItem('admin_token');
   const tokenValid = stored && (Date.now() - parseInt(atob(stored).split('_')[1]||0)) < 300000;
-  if(val === DATA.pwd || tokenValid){
-    sessionStorage.setItem('admin_token', btoa((DATA.pwd)+'_'+Date.now()));
+  const pwd = DATA.pwd || 'admin1234';
+  if(val === pwd || tokenValid){
+    sessionStorage.setItem('admin_token', btoa(pwd+'_'+Date.now()));
     document.getElementById('admin-login-page').style.display='none';
     document.getElementById('admin-content-page').style.display='block';
     document.getElementById('admin-pwd').value='';

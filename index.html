@@ -67,7 +67,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 }
 .app-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .app-header-logo{
-  width:52px;height:34px;
+  width:48px;height:34px;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;overflow:hidden;
 }
@@ -832,9 +832,14 @@ function renderLogo(logo,el){
   if(!el||!logo) return;
   try{
     el.innerHTML='';
-    if(logo.type==='url'&&logo.value) el.innerHTML='<img src="'+esc(logo.value)+'" onerror="this.style.display=\'none\'">';
-    else if(logo.type==='emoji') el.innerHTML='<span class="logo-emoji">'+(logo.value||'🏛️')+'</span>';
-    else el.innerHTML='<span class="logo-initials">'+((logo.value||'ELU').toUpperCase().slice(0,3))+'</span>';
+    if(logo.type==='url'&&logo.value){
+      el.innerHTML='<img src="'+esc(logo.value)+'" onerror="this.style.display=\'none\'" style="width:100%;height:100%;object-fit:contain">';
+    } else if(logo.type==='emoji'){
+      el.innerHTML='<span class="logo-emoji">'+(logo.value||'🏛️')+'</span>';
+    } else {
+      // Par défaut : initiales texte, pas de SVG
+      el.innerHTML='<span class="logo-initials">'+((logo.value||'ELU').toUpperCase().slice(0,3))+'</span>';
+    }
   }catch(e){}
 }
 function updateLogoPreview(){
@@ -853,7 +858,6 @@ function updateLogoPreview(){
   else val=document.getElementById('logo-url-val')?.value||'';
   const pb=document.getElementById('logo-preview-box');
   if(pb) renderLogo({type,value:val},pb);
-  renderLogo({type,value:val},document.getElementById('hdr-logo-wrap'));
 }
 
 /* ═══════════════════════════════════════════════════════

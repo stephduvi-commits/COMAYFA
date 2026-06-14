@@ -1173,7 +1173,8 @@ function renderAll(){
 }
 
 function renderNavTabs(){
-  const bar=document.getElementById('nav-tabs-bar');
+  const bar=sel('nav-tabs-bar');
+  if(!bar) return;
   const active=DATA.tabs.filter(t=>t.active);
   bar.innerHTML=active.map((t,i)=>{
     const nom=tl(t.nom);
@@ -1183,10 +1184,8 @@ function renderNavTabs(){
     if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${tabColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
     else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,'currentColor');
     else icon=`<span style="font-size:17px">${t.icon}</span>`;
-    const activeStyle=t.color?`style="color:${tabColor};border-bottom-color:${tabColor}"`:'' ;
     return `<button class="tab-btn${i===0?' active':''}" data-tabid="${t.id}" onclick="showTab('${t.id}')" data-color="${tabColor}">${icon}${esc(nom)}</button>`;
   }).join('');
-  // Appliquer couleurs custom aux onglets actifs
   bar.querySelectorAll('.tab-btn[data-color]').forEach(btn=>{
     const c=btn.dataset.color;
     if(c&&c!=='var(--accent)') btn.style.cssText+=`--tab-color:${c}`;
@@ -1194,7 +1193,8 @@ function renderNavTabs(){
 }
 
 function renderPanels(){
-  const main=document.getElementById('main-panels');
+  const main=sel('main-panels');
+  if(!main) return;
   const active=DATA.tabs.filter(t=>t.active);
   main.innerHTML=active.map((t,i)=>{
     const nom=tl(t.nom);
@@ -1209,9 +1209,8 @@ function renderPanels(){
       <div id="content-${t.id}"></div>
     </div>`;
   }).join('')+`<div class="last-update">${t('lastUpdate')} <span id="update-date"></span></div>`;
-  const d=new Date();
-  document.getElementById('update-date').textContent=
-    d.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'})+' à '+d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  const ud=sel('update-date');
+  if(ud){ const d=new Date(); ud.textContent=d.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'})+' à '+d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}); }
   active.forEach(t=>renderTabContent(t));
 }
 

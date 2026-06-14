@@ -237,7 +237,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .event-time svg{width:13px;height:13px;}
 
 /* Contenu libre */
-.free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px;font-size:15px;line-height:1.85;white-space:pre-wrap;overflow-wrap:break-word;border-left:4px solid var(--red);}
+.free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px;font-size:15px;line-height:1.85;overflow-wrap:break-word;border-left:4px solid var(--red);}
+.free-content.markdown-body h1,.free-content.markdown-body h2,.free-content.markdown-body h3{font-weight:800;margin:14px 0 6px;color:var(--text);}
+.free-content.markdown-body h1{font-size:20px;}
+.free-content.markdown-body h2{font-size:17px;}
+.free-content.markdown-body h3{font-size:15px;}
+.free-content.markdown-body p{margin-bottom:10px;}
+.free-content.markdown-body ul,.free-content.markdown-body ol{padding-left:20px;margin-bottom:10px;}
+.free-content.markdown-body li{margin-bottom:4px;}
+.free-content.markdown-body strong{font-weight:800;}
+.free-content.markdown-body em{font-style:italic;}
+.free-content.markdown-body a{color:var(--accent);text-decoration:underline;}
+.free-content.markdown-body hr{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.free-content.markdown-body code{background:var(--bg);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;}
+.free-content.markdown-body blockquote{border-left:3px solid var(--accent);padding-left:12px;color:var(--muted);margin:10px 0;}
 
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
@@ -258,6 +271,7 @@ input[style*="background-image"]{background-image:none!important;}
 #lang-picker > div{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:16px 16px 0 0;padding:20px;}
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 <!-- ═══ SPLASH ═══ -->
@@ -804,8 +818,7 @@ function updateSplashTexts(){
 
   // Logo splash
   // Mise à jour logo splash
-  const splashLogoEl = document.getElementById('splash-logo');
-  if(splashLogoEl) renderLogo(DATA.logo, splashLogoEl);
+  // Le logo splash est fixe (PNG ELU) - pas de renderLogo
   document.getElementById('splash-title').textContent=DATA.titre;
   document.getElementById('splash-sub').textContent=DATA.sousTitre;
 }
@@ -904,7 +917,12 @@ function renderTabContent(tab){
   else if(tab.type==='libre'){
     const cc=DATA.customContent[tab.id];
     const txt=cc?tl(cc):'';
-    el.innerHTML=txt?`<div class="free-content">${esc(txt)}</div>`:`<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
+    if(txt){
+      const html = (typeof marked !== 'undefined') ? marked.parse(txt) : txt.replace(/\n/g,'<br>');
+      el.innerHTML=`<div class="free-content markdown-body">${html}</div>`;
+    } else {
+      el.innerHTML=`<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
+    }
   }
 }
 
@@ -1003,6 +1021,10 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
   const remote = await sbLoad();
   if(remote){
     DATA = Object.assign(JSON.parse(JSON.stringify(DEFAULT)), remote);
+    // Sécurité : si logo.value contient un SVG ou données corrompues, réinitialiser
+    if(DATA.logo && DATA.logo.value && (DATA.logo.value.includes('<svg') || DATA.logo.value.includes('data:image/png'))){
+      DATA.logo = {type:'initials', value:'ELU'};
+    }
     localStorage.setItem('panneau_v4', JSON.stringify(DATA));
     // Afficher date de mise à jour
     try{
@@ -1099,7 +1121,8 @@ function renderNavGrid(){
     const isRed  = RED_TABS.includes(tab.id) || tab.color==='#EF4444';
     const isFull = FULL_TABS.includes(tab.id);
     const iconColor = isRed ? 'var(--red)' : 'var(--accent)';
-    const iconSvg = (NAV_ICONS[iconKey]||NAV_ICONS.libre).replace(/currentColor/g, iconColor);
+    const rawSvg = (NAV_ICONS[iconKey]||NAV_ICONS.libre).replace(/currentColor/g, iconColor);
+    const iconSvg = rawSvg.replace('<svg ', '<svg width="26" height="26" ');
 
     // Badge nouveautés sur annonces/evenements
     let badge = '';

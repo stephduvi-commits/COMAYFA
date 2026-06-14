@@ -1870,11 +1870,12 @@ window.addEventListener('DOMContentLoaded', async function(){
   // Charger données depuis Supabase
   const remote = await sbLoad();
   if(remote){
-    DATA = remote;
+    // Fusionner avec DEFAULT pour garantir que tous les champs existent
+    DATA = Object.assign(JSON.parse(JSON.stringify(DEFAULT)), remote);
     localStorage.setItem('panneau_v4', JSON.stringify(DATA));
   } else {
     // Fallback localStorage
-    try{const d=JSON.parse(localStorage.getItem('panneau_v4'));if(d) DATA=d;}catch(e){}
+    try{const d=JSON.parse(localStorage.getItem('panneau_v4'));if(d) DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),d);}catch(e){}
   }
   _dataLoaded=true;
   applyColor(DATA.accentColor||'#F49634');

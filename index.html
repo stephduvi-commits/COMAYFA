@@ -996,10 +996,10 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 (async function(){
   const remote = await sbLoad();
   if(remote){
-    DATA = remote;
+    DATA = Object.assign(JSON.parse(JSON.stringify(DEFAULT)), remote);
     localStorage.setItem('panneau_v4', JSON.stringify(DATA));
   } else {
-    try{const d=JSON.parse(localStorage.getItem('panneau_v4'));if(d) DATA=d;}catch(e){}
+    try{const d=JSON.parse(localStorage.getItem('panneau_v4'));if(d) DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),d);}catch(e){}
   }
 
   // Restaurer la langue

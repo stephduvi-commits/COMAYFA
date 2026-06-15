@@ -969,18 +969,6 @@ function showTab(id){
   if(b) b.classList.add('active');
 }
 
-function openAdmin(){
-  // Vérification mot de passe légère avant redirection
-  const pwd = prompt('Mot de passe administration :');
-  if(!pwd) return;
-  if(pwd === (DATA.pwd||'admin1234')){
-    // Stocker token temporaire (5 min)
-    sessionStorage.setItem('admin_token', btoa(pwd+'_'+Date.now()));
-    window.location.href='admin.html';
-  } else {
-    alert('Mot de passe incorrect');
-  }
-}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escVal(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}

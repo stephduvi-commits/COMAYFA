@@ -410,7 +410,9 @@ body {background:#ECEEF4;}
 .move-btn:hover { background:var(--accent); border-color:var(--accent); color:white; }
 .move-btn:disabled { opacity:.3; cursor:default; }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.snow.css">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.min.js"></script>
 </head>
 <body>
 
@@ -1495,7 +1497,10 @@ function loadContentEditor(){
   else if(tab.type==='horaires')   area.innerHTML=buildAdminHoraires();
   else if(tab.type==='annonces')   area.innerHTML=buildAdminAnnonces();
   else if(tab.type==='evenements') area.innerHTML=buildAdminEvents();
-  else if(tab.type==='libre')      area.innerHTML=buildAdminLibre(tab.id);
+  else if(tab.type==='libre') {
+    area.innerHTML=buildAdminLibre(tab.id);
+    setTimeout(()=>initLibreQuill(tab.id), 50);
+  }
 }
 
 /* ── ADMIN BUILDERS ── */
@@ -1647,7 +1652,7 @@ function buildAdminEvents(){
 }
 
 function buildAdminLibre(tabId){
-  const cc=DATA.customContent[tabId]||{fr:'',nl:'',en:''};
+  const cc=DATA.customContent[tabId]||{fr:'',nl:'',en:'',pdf:''};
   return `<div class="form-section"><div class="form-section-title">✏️ Contenu texte libre</div>
     <div class="lang-tabs">
       <button class="lang-tab-btn active" onclick="switchLangTab('libre','fr','${tabId}',this)">🇫🇷 FR</button>
@@ -1655,14 +1660,75 @@ function buildAdminLibre(tabId){
       <button class="lang-tab-btn" onclick="switchLangTab('libre','en','${tabId}',this)">🇬🇧 EN</button>
     </div>
     <div class="lang-fields" id="lf-libre-${tabId}">
-      <div class="active"><label>Texte FR</label><textarea id="libre-fr-${tabId}" style="min-height:160px">${escVal(cc.fr||'')}</textarea></div>
-      <div><label>Tekst NL</label><textarea id="libre-nl-${tabId}" style="min-height:160px">${escVal(cc.nl||'')}</textarea></div>
-      <div><label>Text EN</label><textarea id="libre-en-${tabId}" style="min-height:160px">${escVal(cc.en||'')}</textarea></div>
+      <div class="active">
+        <label>Texte FR</label>
+        <div id="libre-fr-${tabId}-editor" class="quill-editor"></div>
+        <textarea id="libre-fr-${tabId}" style="display:none">${escVal(cc.fr||'')}</textarea>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('fr','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (FR)</button>
+        <input type="file" id="libre-file-fr-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-fr-${tabId}')">
+      </div>
+      <div>
+        <label>Tekst NL</label>
+        <div id="libre-nl-${tabId}-editor" class="quill-editor"></div>
+        <textarea id="libre-nl-${tabId}" style="display:none">${escVal(cc.nl||'')}</textarea>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('nl','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (NL)</button>
+        <input type="file" id="libre-file-nl-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-nl-${tabId}')">
+      </div>
+      <div>
+        <label>Text EN</label>
+        <div id="libre-en-${tabId}-editor" class="quill-editor"></div>
+        <textarea id="libre-en-${tabId}" style="display:none">${escVal(cc.en||'')}</textarea>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('en','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (EN)</button>
+        <input type="file" id="libre-file-en-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-en-${tabId}')">
+      </div>
+    </div>
+    <div class="form-section" style="margin-top:12px;">
+      <label>Plan PDF (URL ou chemin relatif)</label>
+      <input type="text" id="libre-pdf-${tabId}" value="${escVal(cc.pdf||'')}" placeholder="Documents/plan.pdf">
+      <small style="color:var(--muted);font-size:12px;display:block;margin-top:4px">Ajoutez ici le lien vers le plan PDF à afficher dans cet onglet.</small>
     </div>
   </div>`;
 }
 
 /* ── CRUD ── */
+function triggerLibreFile(lang, tabId){
+  const input=document.getElementById(`libre-file-${lang}-${tabId}`);
+  if(input) input.click();
+}
+
+function applyLibreFile(input, targetId){
+  const file=input?.files?.[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    const text=reader.result || '';
+    const target=document.getElementById(targetId);
+    if(target) target.value=text;
+    const editor=document.getElementById(`${targetId}-editor`);
+    if(editor && editor.__quill){
+      editor.__quill.clipboard.dangerouslyPasteHTML(text);
+    }
+    showToast('📄 Fichier texte chargé dans le champ sélectionné');
+  };
+  reader.onerror=function(){
+    showToast('⚠️ Impossible de lire ce fichier texte');
+  };
+  reader.readAsText(file, 'utf-8');
+  input.value='';
+}
+
+function initLibreQuill(tabId){
+  ['fr','nl','en'].forEach(lang=>{
+    const editor=document.getElementById(`libre-${lang}-${tabId}-editor`);
+    const hidden=document.getElementById(`libre-${lang}-${tabId}`);
+    if(!editor || !hidden || editor.__quill) return;
+    const quill=new Quill(editor,{theme:'snow',modules:{toolbar:[['bold','italic','underline','link'],['list','bullet'],['clean']]}});
+    quill.root.innerHTML=hidden.value || '';
+    quill.on('text-change',()=>{ hidden.value=quill.root.innerHTML; });
+    editor.__quill=quill;
+  });
+}
+
 function addRegle(){DATA.regles.push({fr:{titre:'',texte:''},nl:{titre:'',texte:''},en:{titre:'',texte:''}});loadContentEditor();}
 function delRegle(i){DATA.regles.splice(i,1);loadContentEditor();}
 function addContact(){DATA.contacts.push({icon:'👤',nom:'',role:{fr:'',nl:'',en:''},tel:''});loadContentEditor();}
@@ -1747,6 +1813,8 @@ function saveAll(){
         const ta=document.getElementById(`libre-${lg}-${selTabId}`);
         if(ta) DATA.customContent[selTabId][lg]=ta.value;
       });
+      const pdfInput=document.getElementById(`libre-pdf-${selTabId}`);
+      if(pdfInput) DATA.customContent[selTabId].pdf=pdfInput.value.trim();
     }
   }
   DATA._schemaVersion=SCHEMA_VERSION;

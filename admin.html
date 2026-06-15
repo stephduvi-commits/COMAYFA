@@ -149,6 +149,8 @@ main{padding:12px 12px 100px;}
 
 /* ═══ TEXTE LIBRE ══════════════════════════════════════════ */
 .free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:break-word;}
+/* Éditeur Quill : rendre visible et lisible dans l'admin */
+.quill-editor{min-height:160px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px;}
 
 .last-update{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 0;}
 
@@ -1722,10 +1724,18 @@ function initLibreQuill(tabId){
     const editor=document.getElementById(`libre-${lang}-${tabId}-editor`);
     const hidden=document.getElementById(`libre-${lang}-${tabId}`);
     if(!editor || !hidden || editor.__quill) return;
+    // If editor container is hidden, temporarily show it to allow Quill to initialize correctly
+    const prevDisplay = editor.style.display;
+    let madeVisible = false;
+    if(getComputedStyle(editor).display === 'none'){
+      editor.style.display = 'block';
+      madeVisible = true;
+    }
     const quill=new Quill(editor,{theme:'snow',modules:{toolbar:[['bold','italic','underline','link'],['list','bullet'],['clean']]}});
     quill.root.innerHTML=hidden.value || '';
     quill.on('text-change',()=>{ hidden.value=quill.root.innerHTML; });
     editor.__quill=quill;
+    if(madeVisible){ editor.style.display = prevDisplay || ''; }
   });
 }
 

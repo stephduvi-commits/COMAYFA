@@ -254,11 +254,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div class="splash-title" id="splash-title">Bâtiment Logement</div>
   <div class="splash-sub" id="splash-sub">Camp Adjudant Brasseur · Amay</div>
 
-  <div class="splash-lang-title">Choisissez votre langue / Kies uw taal / Choose your language</div>
   <div class="lang-btns">
-    <button class="lang-btn selected" onclick="selectLang('fr',this)"><span class="flag">🇫🇷</span><span class="lname">Français</span></button>
-    <button class="lang-btn" onclick="selectLang('nl',this)"><span class="flag">🇧🇪</span><span class="lname">Nederlands</span></button>
-    <button class="lang-btn" onclick="selectLang('en',this)"><span class="flag">🇬🇧</span><span class="lname">English</span></button>
+    <button class="lang-btn selected" onclick="selectLang('fr',this)" aria-label="Français"><span class="flag">🇫🇷</span></button>
+    <button class="lang-btn" onclick="selectLang('nl',this)" aria-label="Nederlands"><span class="flag">🇳🇱</span></button>
+    <button class="lang-btn" onclick="selectLang('en',this)" aria-label="English"><span class="flag">🇬🇧</span></button>
   </div>
 
   <div class="splash-news" id="splash-news">
@@ -331,9 +330,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div>
     <p style="font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Langue / Taal / Language</p>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button class="lang-btn" id="lp-fr" onclick="changeLang('fr')"><span class="flag">🇫🇷</span><span class="lname">Français</span></button>
-      <button class="lang-btn" id="lp-nl" onclick="changeLang('nl')"><span class="flag">🇧🇪</span><span class="lname">Nederlands</span></button>
-      <button class="lang-btn" id="lp-en" onclick="changeLang('en')"><span class="flag">🇬🇧</span><span class="lname">English</span></button>
+      <button class="lang-btn" id="lp-fr" onclick="changeLang('fr')" aria-label="Français"><span class="flag">🇫🇷</span></button>
+      <button class="lang-btn" id="lp-nl" onclick="changeLang('nl')" aria-label="Nederlands"><span class="flag">🇳🇱</span></button>
+      <button class="lang-btn" id="lp-en" onclick="changeLang('en')" aria-label="English"><span class="flag">🇬🇧</span></button>
     </div>
   </div>
 </div>

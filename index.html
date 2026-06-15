@@ -235,11 +235,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
 
-/* ═══ FAB ADMIN ══════════════════════════════════════════════ */
-#admin-fab{position:fixed;bottom:20px;right:16px;width:50px;height:50px;background:rgba(244,150,52,.15);border:2px solid var(--accent);color:var(--accent);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:500;transition:all .2s;}
-#admin-fab svg{width:20px;height:20px;}
-#admin-fab:active{transform:scale(.9);}
-
 /* ═══ TOAST ════════════════════════════════════════════════ */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--green);color:white;padding:10px 22px;border-radius:22px;font-size:14px;font-weight:700;opacity:0;transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -341,9 +336,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
 </div>
 
-<button id="admin-fab" onclick="openAdmin()" title="Admin" style="display:none">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-</button>
 <div id="toast"></div>
 <script>
 
@@ -806,7 +798,7 @@ function enterApp(){
   localStorage.setItem(LAST_VISIT_KEY, Date.now().toString());
   const splash=document.getElementById('splash');
   splash.classList.add('hide');
-  setTimeout(()=>{ splash.style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('admin-fab').style.display='flex'; renderAll(); },400);
+  setTimeout(()=>{ splash.style.display='none'; document.getElementById('app').style.display='block'; renderAll(); },400);
 }
 
 /* ═══════════════════════════════════════════════════════

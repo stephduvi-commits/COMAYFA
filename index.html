@@ -17,6 +17,8 @@
   --r:14px;--r-sm:8px;--tap:52px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+::selection{background:transparent;color:inherit;}
+::-moz-selection{background:transparent;color:inherit;}
 html{font-size:16px;}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;touch-action:manipulation;}
 
@@ -1047,18 +1049,20 @@ function renderNavGrid(){
 
   // Calculer les cartes full : forcées + orpheline éventuelle
   const normalCards = active.filter(t=>!FULL_TABS.includes(t.id));
-  const forcedFull  = active.filter(t=>FULL_TABS.includes(t.id));
   const orphanId = (normalCards.length % 2 !== 0)
     ? normalCards[normalCards.length - 1]?.id
     : null;
   const cardIsFull = (tab) => FULL_TABS.includes(tab.id) || tab.id === orphanId;
 
-  grid.innerHTML = active.map(tab=>{
+  const orderedTabs = active
+    .map(tab => ({ tab, isFull: cardIsFull(tab) }))
+    .sort((a, b) => Number(b.isFull) - Number(a.isFull) || active.indexOf(a.tab) - active.indexOf(b.tab));
+
+  grid.innerHTML = orderedTabs.map(({tab, isFull})=>{
     const nom = tl(tab.nom);
     const sub = (NAV_SUBS[L]||NAV_SUBS.fr)[tab.id] || '';
     const iconKey = tab.id in NAV_ICONS ? tab.id : tab.type in NAV_ICONS ? tab.type : 'libre';
     const isRed   = RED_TABS.includes(tab.id) || tab.color==='#EF4444';
-    const isFull  = cardIsFull(tab);
     const iconColor = isRed ? 'var(--red)' : 'var(--accent)';
     const iconSvg = (NAV_ICONS[iconKey]||NAV_ICONS.libre).replace(/currentColor/g, iconColor);
 

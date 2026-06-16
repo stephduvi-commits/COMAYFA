@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" id="meta-theme" content="#F49634">
 <title id="page-title">Panneau d'information</title>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="COMAYFA">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 
@@ -246,6 +249,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 #lang-picker > div{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:16px 16px 0 0;padding:20px;}
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <!-- ═══ SPLASH ═══ -->
@@ -340,6 +344,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <div id="toast"></div>
 <script>
 
+/* ═══ SUPABASE ════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://aiuqiqzzldolindsdyny.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpdXFpcXp6bGRvbGluZHNkeW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTk5NDMsImV4cCI6MjA5Njk5NTk0M30.XCCYoFe5695ZshyL-3969D0lxYQnOpaWLOWAuFNdBMg';
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ═══════════════════════════════════════════════════════
    TRADUCTIONS INTERFACE
@@ -992,6 +1000,24 @@ if(savedLang&&['fr','nl','en'].includes(savedLang)){
 }
 applyColor(DATA.accentColor||'#F49634');
 updateSplashTexts();
+
+// Chargement Supabase en arrière-plan
+(async function(){
+  try {
+    const { data, error } = await sbClient.from('panneau_data').select('data').eq('id',1).single();
+    if(!error && data?.data && data.data._schemaVersion === SCHEMA_VERSION){
+      Object.assign(DATA, data.data);
+      localStorage.setItem('panneau_v4', JSON.stringify(DATA));
+      applyColor(DATA.accentColor||'#F49634');
+      updateSplashTexts();
+    }
+  } catch(e){ /* offline — localStorage suffit */ }
+})();
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
 
 setInterval(()=>{
   const now=new Date();

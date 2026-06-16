@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" id="meta-theme" content="#F49634">
 <title>Administration — Panneau d'information</title>
+<link rel="manifest" href="admin-manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Admin COMAYFA">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 
@@ -415,6 +420,7 @@ body {background:#ECEEF4;}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.snow.css">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -428,6 +434,7 @@ body {background:#ECEEF4;}
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="15 18 9 12 15 6"/></svg>
     Retour au panneau
   </a>
+  <button class="back-btn" onclick="logoutAdmin()" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35)">&#x2B05; Déconnexion</button>
 </div>
 
 <!-- LOGIN -->
@@ -437,10 +444,10 @@ body {background:#ECEEF4;}
     <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Administration</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Connexion sécurisée</p>
     <label style="text-align:left">Mot de passe</label>
-    <input type="password" id="admin-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPwd()" autofocus>
-    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkPwd()">Se connecter</button>
-    <p id="pwd-error" style="color:#DC2626;font-size:13px;margin-top:8px;display:none">Mot de passe incorrect</p>
-    <p style="font-size:11px;color:var(--muted);margin-top:12px">Défaut : <strong style="color:var(--accent)">admin1234</strong></p>
+    <input type="password" id="admin-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkSupabaseAuth()" autofocus>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkSupabaseAuth()">Se connecter</button>
+    <p id="pwd-error" style="color:#DC2626;font-size:13px;margin-top:8px;display:none">Email ou mot de passe incorrect</p>
+    <div id="login-loading" style="display:none;margin-top:8px;font-size:13px;color:var(--muted)">Connexion en cours...</div>
   </div>
 </div>
 
@@ -641,6 +648,34 @@ body {background:#ECEEF4;}
 <div id="toast"></div>
 
 <script>
+
+/* ═══ SUPABASE ════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://aiuqiqzzldolindsdyny.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpdXFpcXp6bGRvbGluZHNkeW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTk5NDMsImV4cCI6MjA5Njk5NTk0M30.XCCYoFe5695ZshyL-3969D0lxYQnOpaWLOWAuFNdBMg';
+const ADMIN_EMAIL = 'steph.duvi@gmail.com';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function loadFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('panneau_data').select('data').eq('id', 1).single();
+    if (error || !data?.data) return false;
+    const d = data.data;
+    if (d && d._schemaVersion === SCHEMA_VERSION) {
+      Object.assign(DATA, d);
+      localStorage.setItem('panneau_v4', JSON.stringify(DATA));
+      return true;
+    }
+    return false;
+  } catch(e) { console.error('loadFromSupabase:', e); return false; }
+}
+
+async function saveToSupabase() {
+  try {
+    const { error } = await supabase.from('panneau_data').upsert({ id: 1, data: DATA, updated_by: ADMIN_EMAIL });
+    if (error) { console.error('saveToSupabase:', error); return false; }
+    return true;
+  } catch(e) { console.error('saveToSupabase:', e); return false; }
+}
 
 /* ═══════════════════════════════════════════════════════
    TRADUCTIONS INTERFACE
@@ -1830,7 +1865,7 @@ function saveAll(){
   DATA._schemaVersion=SCHEMA_VERSION;
   localStorage.setItem('panneau_v4',JSON.stringify(DATA));
   renderAll();
-  showToast('✅ Modifications enregistrées !');
+  saveToSupabase().then(ok => showToast(ok ? '✅ Sauvegardé (local + cloud ☁️)' : '⚠️ Local uniquement — vérif connexion'));
 }
 
 function changePwd(){
@@ -1839,6 +1874,9 @@ function changePwd(){
   if(!p1){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Mot de passe vide.';return;}
   if(p1!==p2){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Les mots de passe ne correspondent pas.';return;}
   DATA.pwd=p1;localStorage.setItem('panneau_v4',JSON.stringify(DATA));
+  supabase.auth.updateUser({ password: p1 }).then(({error}) => {
+    if(error) msg.textContent += ' (erreur màj Supabase: '+error.message+')';
+  });
   msg.style.display='block';msg.style.color='var(--green)';msg.textContent='Mot de passe mis à jour !';
   document.getElementById('new-pwd1').value='';document.getElementById('new-pwd2').value='';
 }
@@ -1905,20 +1943,38 @@ setInterval(()=>{
 
 
 /* ── Spécifique admin.html ── */
-function checkPwd(){
-  const val = document.getElementById('admin-pwd').value;
-  const stored = sessionStorage.getItem('admin_token');
-  const tokenValid = stored && (Date.now() - parseInt(atob(stored).split('_')[1]||0)) < 300000;
-  if(val === DATA.pwd || tokenValid){
-    sessionStorage.setItem('admin_token', btoa((DATA.pwd)+'_'+Date.now()));
-    document.getElementById('admin-login-page').style.display='none';
-    document.getElementById('admin-content-page').style.display='block';
-    document.getElementById('admin-pwd').value='';
-    document.getElementById('pwd-error').style.display='none';
-    try{ loadAdminForms(); }catch(e){ console.error(e); }
-  } else {
-    document.getElementById('pwd-error').style.display='block';
+async function checkSupabaseAuth() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const errEl = document.getElementById('pwd-error');
+  const loadEl = document.getElementById('login-loading');
+  errEl.style.display = 'none';
+  loadEl.style.display = 'block';
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwd });
+    if (error || !data.session) {
+      loadEl.style.display = 'none';
+      errEl.style.display = 'block';
+      return;
+    }
+    loadEl.style.display = 'none';
+    document.getElementById('admin-pwd').value = '';
+    await loadFromSupabase();
+    document.getElementById('admin-login-page').style.display = 'none';
+    document.getElementById('admin-content-page').style.display = 'block';
+    try { loadAdminForms(); } catch(e) { console.error(e); }
+  } catch(e) {
+    loadEl.style.display = 'none';
+    errEl.style.display = 'block';
+    console.error(e);
   }
+}
+
+async function logoutAdmin() {
+  if (!confirm('Se déconnecter ?')) return;
+  await supabase.auth.signOut();
+  document.getElementById('admin-content-page').style.display = 'none';
+  document.getElementById('admin-login-page').style.display = 'flex';
+  document.getElementById('admin-pwd').value = '';
 }
 
 function showAdminTab(id,btn){
@@ -1935,24 +1991,37 @@ function confirmLeave(){
 
 function openAdmin(){ /* no-op dans admin.html */ }
 
-// Vérifier token au chargement
-window.addEventListener('DOMContentLoaded', function(){
+// Vérifier session Supabase au chargement
+window.addEventListener('DOMContentLoaded', async function(){
   applyColor(DATA.accentColor||'#F49634');
-  const stored = sessionStorage.getItem('admin_token');
-  if(stored){
-    try{
-      const parts = atob(stored).split('_');
-      const age = Date.now() - parseInt(parts[1]||0);
-      if(age < 300000){ // 5 minutes
-        document.getElementById('admin-login-page').style.display='none';
-        document.getElementById('admin-content-page').style.display='block';
-        try{ loadAdminForms(); }catch(e){ console.error(e); }
-        return;
-      }
-    }catch(e){}
+  // Vérifier session Supabase
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await loadFromSupabase();
+    document.getElementById('admin-login-page').style.display = 'none';
+    document.getElementById('admin-content-page').style.display = 'block';
+    try { loadAdminForms(); } catch(e) { console.error(e); }
+  } else {
+    document.getElementById('admin-login-page').style.display = 'flex';
   }
-  // Pas de token valide — afficher login
-  document.getElementById('admin-login-page').style.display='flex';
+  // Gestion Quill click
+  document.addEventListener('click', function(e){
+    const qe = e.target.closest && e.target.closest('.quill-editor');
+    if(!qe) return;
+    const id = qe.id || '';
+    const m = id.match(/^libre-(fr|nl|en)-(.+)-editor$/);
+    if(!m) return;
+    const tabId = m[2];
+    try{ initLibreQuill(tabId); }catch(err){ console.error('initLibreQuill error',err); }
+    setTimeout(()=>{
+      if(qe.__quill) try{ qe.__quill.focus(); }catch(e){}
+      const inner = qe.querySelector('[contenteditable]'); if(inner) try{ inner.focus(); }catch(e){}
+    },120);
+  });
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/admin-sw.js').catch(()=>{});
+  }
 });
 
 </script>

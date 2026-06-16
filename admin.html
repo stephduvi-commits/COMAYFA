@@ -1552,25 +1552,28 @@ function buildAdminRegles(){
   let html=`<button class="btn btn-add" onclick="addRegle()">➕ Ajouter</button><div id="admin-regles-list">`;
   DATA.regles.forEach((r,i)=>{
     html+=`<div class="admin-item"><button class="btn btn-danger" onclick="delRegle(${i})">✕</button>
-      ${makeLangTabs('r',i)}`;
-    ['fr','nl','en'].forEach(lg=>{
-      const d=r[lg]||{};
-      const c=document.getElementById(`lf-r-${i}-${lg}`);
-      html+=`<!-- inject-${i}-${lg} -->`;
-    });
-    html+=`</div>`;
+      <div class="lang-tabs">
+        <button class="lang-tab-btn active" onclick="switchLangTab('r','fr',${i},this)">🇫🇷 FR</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('r','nl',${i},this)">🇧🇪 NL</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('r','en',${i},this)">🇬🇧 EN</button>
+      </div>
+      <div class="lang-fields" id="lf-r-${i}">
+        <div class="active" id="lf-r-${i}-fr">
+          <label>Titre FR</label><input type="text" id="rt-${i}-fr" value="${escVal((r.fr||{}).titre||'')}">
+          <label>Texte FR</label><textarea id="rx-${i}-fr">${escVal((r.fr||{}).texte||'')}</textarea>
+        </div>
+        <div id="lf-r-${i}-nl">
+          <label>Titre NL</label><input type="text" id="rt-${i}-nl" value="${escVal((r.nl||{}).titre||'')}">
+          <label>Texte NL</label><textarea id="rx-${i}-nl">${escVal((r.nl||{}).texte||'')}</textarea>
+        </div>
+        <div id="lf-r-${i}-en">
+          <label>Titre EN</label><input type="text" id="rt-${i}-en" value="${escVal((r.en||{}).titre||'')}">
+          <label>Texte EN</label><textarea id="rx-${i}-en">${escVal((r.en||{}).texte||'')}</textarea>
+        </div>
+      </div>
+    </div>`;
   });
-  html+=`</div>`;
-  // On injecte via setTimeout pour que le DOM soit prêt
-  setTimeout(()=>{
-    DATA.regles.forEach((r,i)=>{
-      ['fr','nl','en'].forEach(lg=>{
-        const c=document.getElementById(`lf-r-${i}-${lg}`);
-        if(c){ const d=r[lg]||{}; c.innerHTML=`<label>Titre</label><input type="text" id="rt-${i}-${lg}" value="${escVal(d.titre||'')}"><label>Texte</label><textarea id="rx-${i}-${lg}">${escVal(d.texte||'')}</textarea>`;}
-      });
-    });
-  },50);
-  return html;
+  return html+`</div>`;
 }
 
 function buildAdminContacts(){
@@ -1648,19 +1651,28 @@ function buildAdminAnnonces(){
       <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;cursor:pointer">
         <input type="checkbox" id="anew-${i}" ${a.isNew?'checked':''} style="width:auto;margin:0;padding:0"> Marquer comme nouveau (badge vert)
       </label>
-      ${makeLangTabs('a',i)}`;
-    html+=`</div>`;
+      <div class="lang-tabs">
+        <button class="lang-tab-btn active" onclick="switchLangTab('a','fr',${i},this)">🇫🇷 FR</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('a','nl',${i},this)">🇧🇪 NL</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('a','en',${i},this)">🇬🇧 EN</button>
+      </div>
+      <div class="lang-fields" id="lf-a-${i}">
+        <div class="active" id="lf-a-${i}-fr">
+          <label>Titre FR</label><input type="text" id="an-${i}-fr" value="${escVal((a.fr||{}).titre||'')}">
+          <label>Texte FR</label><textarea id="ax-${i}-fr">${escVal((a.fr||{}).texte||'')}</textarea>
+        </div>
+        <div id="lf-a-${i}-nl">
+          <label>Titre NL</label><input type="text" id="an-${i}-nl" value="${escVal((a.nl||{}).titre||'')}">
+          <label>Texte NL</label><textarea id="ax-${i}-nl">${escVal((a.nl||{}).texte||'')}</textarea>
+        </div>
+        <div id="lf-a-${i}-en">
+          <label>Titre EN</label><input type="text" id="an-${i}-en" value="${escVal((a.en||{}).titre||'')}">
+          <label>Texte EN</label><textarea id="ax-${i}-en">${escVal((a.en||{}).texte||'')}</textarea>
+        </div>
+      </div>
+    </div>`;
   });
-  html+=`</div>`;
-  setTimeout(()=>{
-    DATA.annonces.forEach((a,i)=>{
-      ['fr','nl','en'].forEach(lg=>{
-        const c=document.getElementById(`lf-a-${i}-${lg}`);
-        if(c){const d=a[lg]||{};c.innerHTML=`<label>Titre</label><input type="text" id="an-${i}-${lg}" value="${escVal(d.titre||'')}"><label>Texte</label><textarea id="ax-${i}-${lg}">${escVal(d.texte||'')}</textarea>`;}
-      });
-    });
-  },50);
-  return html;
+  return html+`</div>`;
 }
 
 function buildAdminEvents(){
@@ -1680,19 +1692,28 @@ function buildAdminEvents(){
       <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;cursor:pointer">
         <input type="checkbox" id="enew-${i}" ${e.isNew?'checked':''} style="width:auto;margin:0;padding:0"> Marquer comme nouveau
       </label>
-      ${makeLangTabs('ev',i)}`;
-    html+=`</div>`;
+      <div class="lang-tabs">
+        <button class="lang-tab-btn active" onclick="switchLangTab('ev','fr',${i},this)">🇫🇷 FR</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('ev','nl',${i},this)">🇧🇪 NL</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('ev','en',${i},this)">🇬🇧 EN</button>
+      </div>
+      <div class="lang-fields" id="lf-ev-${i}">
+        <div class="active" id="lf-ev-${i}-fr">
+          <label>Titre FR</label><input type="text" id="et-${i}-fr" value="${escVal((e.fr||{}).titre||'')}">
+          <label>Description FR</label><input type="text" id="ed-${i}-fr" value="${escVal((e.fr||{}).desc||'')}">
+        </div>
+        <div id="lf-ev-${i}-nl">
+          <label>Titre NL</label><input type="text" id="et-${i}-nl" value="${escVal((e.nl||{}).titre||'')}">
+          <label>Description NL</label><input type="text" id="ed-${i}-nl" value="${escVal((e.nl||{}).desc||'')}">
+        </div>
+        <div id="lf-ev-${i}-en">
+          <label>Titre EN</label><input type="text" id="et-${i}-en" value="${escVal((e.en||{}).titre||'')}">
+          <label>Description EN</label><input type="text" id="ed-${i}-en" value="${escVal((e.en||{}).desc||'')}">
+        </div>
+      </div>
+    </div>`;
   });
-  html+=`</div>`;
-  setTimeout(()=>{
-    DATA.events.forEach((e,i)=>{
-      ['fr','nl','en'].forEach(lg=>{
-        const c=document.getElementById(`lf-ev-${i}-${lg}`);
-        if(c){const d=e[lg]||{};c.innerHTML=`<label>Titre</label><input type="text" id="et-${i}-${lg}" value="${escVal(d.titre||'')}"><label>Description</label><input type="text" id="ed-${i}-${lg}" value="${escVal(d.desc||'')}">`;} 
-      });
-    });
-  },50);
-  return html;
+  return html+`</div>`;
 }
 
 function buildAdminLibre(tabId){

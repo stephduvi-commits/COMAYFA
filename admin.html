@@ -653,11 +653,11 @@ body {background:#ECEEF4;}
 const SUPABASE_URL = 'https://aiuqiqzzldolindsdyny.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpdXFpcXp6bGRvbGluZHNkeW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTk5NDMsImV4cCI6MjA5Njk5NTk0M30.XCCYoFe5695ZshyL-3969D0lxYQnOpaWLOWAuFNdBMg';
 const ADMIN_EMAIL = 'steph.duvi@gmail.com';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function loadFromSupabase() {
   try {
-    const { data, error } = await supabase.from('panneau_data').select('data').eq('id', 1).single();
+    const { data, error } = await supabaseClient.from('panneau_data').select('data').eq('id', 1).single();
     if (error || !data?.data) return false;
     const d = data.data;
     if (d && d._schemaVersion === SCHEMA_VERSION) {
@@ -671,7 +671,7 @@ async function loadFromSupabase() {
 
 async function saveToSupabase() {
   try {
-    const { error } = await supabase.from('panneau_data').upsert({ id: 1, data: DATA, updated_by: ADMIN_EMAIL });
+    const { error } = await supabaseClient.from('panneau_data').upsert({ id: 1, data: DATA, updated_by: ADMIN_EMAIL });
     if (error) { console.error('saveToSupabase:', error); return false; }
     return true;
   } catch(e) { console.error('saveToSupabase:', e); return false; }
@@ -1874,7 +1874,7 @@ function changePwd(){
   if(!p1){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Mot de passe vide.';return;}
   if(p1!==p2){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Les mots de passe ne correspondent pas.';return;}
   DATA.pwd=p1;localStorage.setItem('panneau_v4',JSON.stringify(DATA));
-  supabase.auth.updateUser({ password: p1 }).then(({error}) => {
+  supabaseClient.auth.updateUser({ password: p1 }).then(({error}) => {
     if(error) msg.textContent += ' (erreur màj Supabase: '+error.message+')';
   });
   msg.style.display='block';msg.style.color='var(--green)';msg.textContent='Mot de passe mis à jour !';
@@ -1950,7 +1950,7 @@ async function checkSupabaseAuth() {
   errEl.style.display = 'none';
   loadEl.style.display = 'block';
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwd });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwd });
     if (error || !data.session) {
       loadEl.style.display = 'none';
       errEl.style.display = 'block';
@@ -1971,7 +1971,7 @@ async function checkSupabaseAuth() {
 
 async function logoutAdmin() {
   if (!confirm('Se déconnecter ?')) return;
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   document.getElementById('admin-content-page').style.display = 'none';
   document.getElementById('admin-login-page').style.display = 'flex';
   document.getElementById('admin-pwd').value = '';
@@ -1995,7 +1995,7 @@ function openAdmin(){ /* no-op dans admin.html */ }
 window.addEventListener('DOMContentLoaded', async function(){
   applyColor(DATA.accentColor||'#F49634');
   // Vérifier session Supabase
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     await loadFromSupabase();
     document.getElementById('admin-login-page').style.display = 'none';

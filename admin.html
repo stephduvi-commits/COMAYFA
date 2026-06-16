@@ -675,13 +675,10 @@ async function saveToSupabase() {
   try {
     const { data: sess } = await supabaseClient.auth.getSession();
     const hasSession = !!sess?.session;
-    const { error } = await supabaseClient.from('panneau_data').upsert({ id: 1, data: DATA, updated_by: ADMIN_EMAIL });
-    if (error) {
-      alert('Erreur Supabase:\nSession: ' + (hasSession ? 'OUI' : 'NON') + '\nCode: ' + error.code + '\nMessage: ' + error.message);
-      return false;
-    }
+    const { error } = await supabaseClient.from('panneau_data').upsert({ id: 1, data: DATA });
+    if (error) { console.error('saveToSupabase:', error.message); return false; }
     return true;
-  } catch(e) { alert('Exception: ' + e.message); return false; }
+  } catch(e) { console.error('saveToSupabase:', e); return false; }
 }
 
 /* ═══════════════════════════════════════════════════════

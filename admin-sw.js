@@ -1,6 +1,5 @@
-const CACHE = 'comayfa-admin-v1';
-const ASSETS = [
-  '/admin.html',
+const CACHE = 'comayfa-admin-v3';
+const CDN_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap',
   'https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css',
   'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js',
@@ -9,7 +8,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CDN_ASSETS).catch(()=>{})));
   self.skipWaiting();
 });
 
@@ -21,7 +20,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if(e.request.url.includes('supabase.co')) return; // toujours réseau pour Supabase
+  // Supabase : toujours réseau
+  if(e.request.url.includes('supabase.co')) return;
+  // admin.html : toujours réseau (jamais en cache pour que les mises à jour soient immédiates)
+  if(e.request.url.endsWith('/admin.html') || e.request.url.endsWith('admin.html')) return;
+  // CDN assets : cache-first
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       const clone = res.clone();

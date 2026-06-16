@@ -417,9 +417,9 @@ body {background:#ECEEF4;}
 .move-btn:hover { background:var(--accent); border-color:var(--accent); color:white; }
 .move-btn:disabled { opacity:.3; cursor:default; }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.snow.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/quill@1.9.0/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -653,7 +653,9 @@ body {background:#ECEEF4;}
 const SUPABASE_URL = 'https://aiuqiqzzldolindsdyny.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpdXFpcXp6bGRvbGluZHNkeW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTk5NDMsImV4cCI6MjA5Njk5NTk0M30.XCCYoFe5695ZshyL-3969D0lxYQnOpaWLOWAuFNdBMg';
 const ADMIN_EMAIL = 'steph.duvi@gmail.com';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 async function loadFromSupabase() {
   try {
@@ -671,10 +673,15 @@ async function loadFromSupabase() {
 
 async function saveToSupabase() {
   try {
+    const { data: sess } = await supabaseClient.auth.getSession();
+    const hasSession = !!sess?.session;
     const { error } = await supabaseClient.from('panneau_data').upsert({ id: 1, data: DATA, updated_by: ADMIN_EMAIL });
-    if (error) { console.error('saveToSupabase:', error); return false; }
+    if (error) {
+      alert('Erreur Supabase:\nSession: ' + (hasSession ? 'OUI' : 'NON') + '\nCode: ' + error.code + '\nMessage: ' + error.message);
+      return false;
+    }
     return true;
-  } catch(e) { console.error('saveToSupabase:', e); return false; }
+  } catch(e) { alert('Exception: ' + e.message); return false; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1191,14 +1198,17 @@ function renderAll(){
   // Mettre à jour login logo
   const llEl=document.getElementById('login-logo-disp');
   if(llEl) renderLogo(DATA.logo, llEl);
-  document.getElementById('hdr-title').textContent=DATA.titre;
-  document.getElementById('hdr-subtitle').textContent=DATA.sousTitre;
-  document.getElementById('lang-switch-btn').textContent=I18N[LANG].langSwitch;
+  const hdrTitle=document.getElementById('hdr-title');
+  if(hdrTitle) hdrTitle.textContent=DATA.titre;
+  const hdrSub=document.getElementById('hdr-subtitle');
+  if(hdrSub) hdrSub.textContent=DATA.sousTitre;
+  const langBtn=document.getElementById('lang-switch-btn');
+  if(langBtn) langBtn.textContent=I18N[LANG].langSwitch;
   renderLogo(DATA.logo,document.getElementById('hdr-logo-wrap'));
-  const now=new Date();
-  document.getElementById('hdr-date').innerHTML=
+  const hdrDate=document.getElementById('hdr-date');
+  if(hdrDate){ const now=new Date(); hdrDate.innerHTML=
     now.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{weekday:'short',day:'numeric',month:'short'}).replace(/^\w/,c=>c.toUpperCase())+'<br>'+
-    now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+    now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}); }
   renderNavTabs();
   renderPanels();
 }
@@ -1864,7 +1874,7 @@ function saveAll(){
   }
   DATA._schemaVersion=SCHEMA_VERSION;
   localStorage.setItem('panneau_v4',JSON.stringify(DATA));
-  renderAll();
+  try{ renderAll(); }catch(e){ console.warn('renderAll (admin):', e); }
   saveToSupabase().then(ok => showToast(ok ? '✅ Sauvegardé (local + cloud ☁️)' : '⚠️ Local uniquement — vérif connexion'));
 }
 

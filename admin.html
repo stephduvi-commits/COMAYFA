@@ -573,6 +573,13 @@ body {background:#ECEEF4;}
       Aperçu — Rejoindre le groupe WhatsApp
      </a>
     </div>
+    <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+     <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;cursor:pointer;font-size:14px;font-weight:600">
+      <input type="checkbox" id="cfg-wa-auto-notify" style="width:18px;height:18px;margin:0;accent-color:#25D366">
+      Notifier automatiquement le groupe lors d'un nouvel événement ou annonce
+     </label>
+     <p class="form-hint" style="margin-top:6px">Quand vous ajoutez un événement ou une annonce et sauvegardez, WhatsApp s'ouvre avec un message pré-rempli à envoyer dans le groupe.</p>
+    </div>
    </div>
   </div>
   <div class="admin-card">
@@ -852,6 +859,7 @@ const DEFAULT={
   accentColor:'#F49634',
   logo:{type:'initials',value:'ELU'},
   waUrl:'', waLabelFr:"S'abonner aux notifications WhatsApp", waLabelNl:'WhatsApp-meldingen ontvangen', waLabelEn:'Subscribe to WhatsApp notifications',
+  waAutoNotify:false,
   smsUrl:'', smsLabelFr:"S'abonner par SMS", smsLabelNl:'Abonneren via SMS', smsLabelEn:'Subscribe via SMS',
   hideNotif:false,
   tabs:[
@@ -1399,6 +1407,7 @@ function loadAdminForms(){
   updateLogoPreview();
   // Notif
   document.getElementById('cfg-wa-url').value=DATA.waUrl||''; setTimeout(previewWaLink,50);
+  document.getElementById('cfg-wa-auto-notify').checked=DATA.waAutoNotify||false;
   document.getElementById('cfg-wa-label-fr').value=DATA.waLabelFr||'';
   document.getElementById('cfg-wa-label-nl').value=DATA.waLabelNl||'';
   document.getElementById('cfg-wa-label-en').value=DATA.waLabelEn||'';
@@ -1984,9 +1993,12 @@ function addHoraireGroupe(){DATA.horaires.push({groupe:{fr:'',nl:'',en:''},ligne
 function delHoraireGroupe(gi){DATA.horaires.splice(gi,1);loadContentEditor();}
 function addHoraireLigne(gi){DATA.horaires[gi].lignes.push({label:{fr:'',nl:'',en:''},valeur:{fr:'',nl:'',en:''},ferme:false});loadContentEditor();}
 function delHoraireLigne(gi,li){DATA.horaires[gi].lignes.splice(li,1);loadContentEditor();}
-function addAnnonce(){const d=new Date().toISOString().split('T')[0];DATA.annonces.push({type:'normal',isNew:true,date:d,fr:{titre:'',texte:''},nl:{titre:'',texte:''},en:{titre:'',texte:''}});loadContentEditor();}
+
+let _pendingWaNotif = []; // types of items added this session, reset after WA notification sent
+
+function addAnnonce(){const d=new Date().toISOString().split('T')[0];DATA.annonces.push({type:'normal',isNew:true,date:d,fr:{titre:'',texte:''},nl:{titre:'',texte:''},en:{titre:'',texte:''}});_pendingWaNotif.push('annonce');loadContentEditor();}
 function delAnnonce(i){DATA.annonces.splice(i,1);loadContentEditor();}
-function addEvent(){DATA.events.push({jour:'',mois:{fr:'',nl:'',en:''},isNew:true,heure:'',fr:{titre:'',desc:''},nl:{titre:'',desc:''},en:{titre:'',desc:''}});loadContentEditor();}
+function addEvent(){DATA.events.push({jour:'',mois:{fr:'',nl:'',en:''},isNew:true,heure:'',fr:{titre:'',desc:''},nl:{titre:'',desc:''},en:{titre:'',desc:''}});_pendingWaNotif.push('event');loadContentEditor();}
 function delEvent(i){DATA.events.splice(i,1);loadContentEditor();}
 
 /* ═══════════════════════════════════════════════════════
@@ -2005,6 +2017,7 @@ function saveAll(){
   DATA.logo={type:lt,value:lv};
   // Notif
   DATA.waUrl=document.getElementById('cfg-wa-url').value.trim();
+  DATA.waAutoNotify=document.getElementById('cfg-wa-auto-notify').checked;
   DATA.waLabelFr=document.getElementById('cfg-wa-label-fr').value.trim();
   DATA.waLabelNl=document.getElementById('cfg-wa-label-nl').value.trim();
   DATA.waLabelEn=document.getElementById('cfg-wa-label-en').value.trim();
@@ -2071,7 +2084,16 @@ function saveAll(){
   DATA._schemaVersion=SCHEMA_VERSION;
   localStorage.setItem('panneau_v4',JSON.stringify(DATA));
   try{ renderAll(); }catch(e){ console.warn('renderAll (admin):', e); }
-  saveToSupabase().then(ok => showToast(ok ? '✅ Sauvegardé (local + cloud ☁️)' : '⚠️ Local uniquement — vérif connexion'));
+  const hadPendingNotif=_pendingWaNotif.length>0;
+  _pendingWaNotif=[];
+  saveToSupabase().then(ok => {
+    showToast(ok ? '✅ Sauvegardé (local + cloud ☁️)' : '⚠️ Local uniquement — vérif connexion');
+    if(hadPendingNotif && DATA.waAutoNotify && DATA.waUrl) {
+      const newEvents=DATA.events.filter(e=>e.isNew);
+      const newAnnonces=DATA.annonces.filter(a=>a.isNew);
+      if(newEvents.length>0||newAnnonces.length>0) sendWaNotification(newEvents,newAnnonces);
+    }
+  });
 }
 
 function changePwd(){
@@ -2100,6 +2122,28 @@ function previewWaLink(){
       prev.style.display='none';
     }
   }
+}
+
+/* ── Envoi notification WhatsApp ── */
+function sendWaNotification(newEvents, newAnnonces){
+  let msg='📢 *'+DATA.titre+'*\n';
+  newAnnonces.forEach(a=>{
+    const icon=a.type==='urgent'?'🚨':a.type==='info'?'ℹ️':'📣';
+    const titre=a.fr?.titre||a.nl?.titre||a.en?.titre||'';
+    const texte=a.fr?.texte||a.nl?.texte||a.en?.texte||'';
+    msg+='\n'+icon+' *'+(titre||'Annonce')+'*'+(texte?'\n'+texte:'');
+  });
+  newEvents.forEach(ev=>{
+    const titre=ev.fr?.titre||ev.nl?.titre||ev.en?.titre||'';
+    const jour=ev.jour||'';
+    const mois=ev.mois?.fr||ev.mois?.nl||ev.mois?.en||'';
+    const heure=ev.heure||'';
+    const desc=ev.fr?.desc||ev.nl?.desc||ev.en?.desc||'';
+    msg+='\n🗓️ *'+(titre||'Événement')+'*';
+    if(jour||mois) msg+='\n📅 '+jour+(mois?' '+mois:'')+(heure?' à '+heure:'');
+    if(desc) msg+='\n'+desc;
+  });
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 
 /* ── Upload logo fichier local → base64 ── */

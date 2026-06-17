@@ -739,8 +739,7 @@ function changeLang(lang){
   if(sub) sub.textContent=DATA.sousTitre;
   // Si on est dans un sous-menu, recharger ce contenu dans la nouvelle langue
   const cs=document.getElementById('content-screen');
-  if(cs && cs.style.display!=='none'){
-    // Retrouver l'onglet via dataset (fiable, indépendant de la langue)
+  if(cs && cs.style.display==='block'){
     const activeTabId=cs.dataset.activeTab;
     if(activeTabId) openContent(activeTabId);
   } else {

@@ -2235,27 +2235,27 @@ function sendWaNotification(newEvents, newAnnonces){
   let blocks=[];
 
   newAnnonces.forEach(a=>{
-    const icon=a.type==='urgent'?'⚠ ':a.type==='info'?'ℹ ':'';
+    const pfx=a.type==='urgent'?'[URGENT] ':a.type==='info'?'[INFO] ':'';
     let b='';
-    if(a.fr?.titre) b+='*'+icon+'[FR] '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
-    if(a.nl?.titre) b+='*'+icon+'[NL] '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
-    if(a.en?.titre) b+='*'+icon+'[EN] '+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
+    if(a.fr?.titre) b+='*'+pfx+'[FR] '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
+    if(a.nl?.titre) b+='*'+pfx+'[NL] '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
+    if(a.en?.titre) b+='*'+pfx+'[EN] '+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
   newEvents.forEach(ev=>{
     const jour=ev.jour||'';
-    const heure=ev.heure?' · '+ev.heure:'';
+    const heure=ev.heure?' - '+ev.heure:'';
     const moisJoints=[ev.mois?.fr,ev.mois?.nl,ev.mois?.en].filter(Boolean).join(' / ');
     const dateLine=jour||moisJoints?(jour?jour+' ':'')+moisJoints+heure:'';
     let b=dateLine?'_'+dateLine+'_\n':'';
-    if(ev.fr?.titre) b+='*► [FR] '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
-    if(ev.nl?.titre) b+='*► [NL] '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
-    if(ev.en?.titre) b+='*► [EN] '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
+    if(ev.fr?.titre) b+='*[FR] '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
+    if(ev.nl?.titre) b+='*[NL] '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
+    if(ev.en?.titre) b+='*[EN] '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
-  const msg='★ *'+DATA.titre+'*\n\n'+blocks.join('\n\n- - -\n\n');
+  const msg='*'+DATA.titre+'*\n\n'+blocks.join('\n\n- - -\n\n');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 

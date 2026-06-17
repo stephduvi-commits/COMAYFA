@@ -2,7 +2,7 @@
   "name": "COMAYFA — Panneau d'information",
   "short_name": "COMAYFA",
   "description": "Panneau d'information résidents",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#F49634",

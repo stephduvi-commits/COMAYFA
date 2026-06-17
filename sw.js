@@ -1,6 +1,6 @@
 const CACHE = 'comayfa-v1';
 const ASSETS = [
-  '/index.html',
+  './index.html',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];

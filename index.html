@@ -775,7 +775,7 @@ function getNewItems(){
   DATA.annonces.filter(a=>a.isNew).forEach(a=>{
     items.push({type:'annonce', title:tl(a[LANG]||a.fr).titre||'', date:a.date});
   });
-  DATA.events.filter(e=>e.isNew).forEach(e=>{
+  DATA.events.filter(e=>e.isNew && eventVisible(e)).forEach(e=>{
     items.push({type:'event', title:tl(e[LANG]||e.fr).titre||'', date:e.jour+' '+tl(e.mois)});
   });
   return items;
@@ -1130,7 +1130,7 @@ function renderNavGrid(){
   if(gs) gs.textContent=(greetSub[L]||greetSub.fr);
 
   // Compter les nouveautés
-  const newCount = DATA.annonces.filter(a=>a.isNew).length + DATA.events.filter(e=>e.isNew).length;
+  const newCount = DATA.annonces.filter(a=>a.isNew).length + DATA.events.filter(e=>e.isNew && eventVisible(e)).length;
 
   // Calculer les cartes full : forcées + orpheline éventuelle
   const normalCards = active.filter(t=>!FULL_TABS.includes(t.id));

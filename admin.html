@@ -429,6 +429,7 @@ body {background:#ECEEF4;}
 .move-btn:disabled { opacity:.3; cursor:default; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
   import { Editor } from 'https://esm.sh/@tiptap/core@2';
@@ -1761,8 +1762,8 @@ function buildAdminLibre(tabId){
           <div id="libre-fr-${tabId}-editor" class="tiptap-editor"></div>
         </div>
         <textarea id="libre-fr-${tabId}" style="display:none">${escVal(cc.fr||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('fr','${tabId}')">📄 Charger un fichier TXT (FR)</button>
-        <input type="file" id="libre-file-fr-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-fr-${tabId}')">
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('fr','${tabId}')">📄 Importer TXT / DOC / DOCX (FR)</button>
+        <input type="file" id="libre-file-fr-${tabId}" accept=".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="applyLibreFile(this,'libre-fr-${tabId}')">
       </div>
       <div id="lf-libre-${tabId}-nl">
         <label>Tekst NL</label>
@@ -1782,8 +1783,8 @@ function buildAdminLibre(tabId){
           <div id="libre-nl-${tabId}-editor" class="tiptap-editor"></div>
         </div>
         <textarea id="libre-nl-${tabId}" style="display:none">${escVal(cc.nl||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('nl','${tabId}')">📄 Charger un fichier TXT (NL)</button>
-        <input type="file" id="libre-file-nl-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-nl-${tabId}')">
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('nl','${tabId}')">📄 Importer TXT / DOC / DOCX (NL)</button>
+        <input type="file" id="libre-file-nl-${tabId}" accept=".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="applyLibreFile(this,'libre-nl-${tabId}')">
       </div>
       <div id="lf-libre-${tabId}-en">
         <label>Text EN</label>
@@ -1803,8 +1804,8 @@ function buildAdminLibre(tabId){
           <div id="libre-en-${tabId}-editor" class="tiptap-editor"></div>
         </div>
         <textarea id="libre-en-${tabId}" style="display:none">${escVal(cc.en||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('en','${tabId}')">📄 Charger un fichier TXT (EN)</button>
-        <input type="file" id="libre-file-en-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-en-${tabId}')">
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('en','${tabId}')">📄 Importer TXT / DOC / DOCX (EN)</button>
+        <input type="file" id="libre-file-en-${tabId}" accept=".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="applyLibreFile(this,'libre-en-${tabId}')">
       </div>
     </div>
     <div class="form-section" style="margin-top:12px;">
@@ -1824,22 +1825,40 @@ function triggerLibreFile(lang, tabId){
 function applyLibreFile(input, targetId){
   const file=input?.files?.[0];
   if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(){
-    const text=reader.result || '';
-    const target=document.getElementById(targetId);
-    if(target) target.value=text;
-    const editorDiv=document.getElementById(`${targetId}-editor`);
-    if(editorDiv && editorDiv.__tiptap){
-      editorDiv.__tiptap.commands.setContent(text || '');
-    }
-    showToast('📄 Fichier texte chargé dans le champ sélectionné');
-  };
-  reader.onerror=function(){
-    showToast('⚠️ Impossible de lire ce fichier texte');
-  };
-  reader.readAsText(file, 'utf-8');
+  const ext=file.name.split('.').pop().toLowerCase();
   input.value='';
+
+  function setEditorContent(html){
+    const target=document.getElementById(targetId);
+    if(target) target.value=html;
+    const editorDiv=document.getElementById(`${targetId}-editor`);
+    if(editorDiv && editorDiv.__tiptap) editorDiv.__tiptap.commands.setContent(html||'');
+  }
+
+  if(ext==='docx'||ext==='doc'){
+    const reader=new FileReader();
+    reader.onload=async function(){
+      try{
+        const result=await mammoth.convertToHtml({arrayBuffer: reader.result});
+        if(result.messages?.length) console.warn('mammoth warnings:', result.messages);
+        setEditorContent(result.value||'');
+        showToast('📄 Document Word importé avec succès');
+      }catch(err){
+        console.error(err);
+        showToast('⚠️ Impossible de lire ce fichier Word');
+      }
+    };
+    reader.onerror=()=>showToast('⚠️ Impossible de lire ce fichier Word');
+    reader.readAsArrayBuffer(file);
+  } else {
+    const reader=new FileReader();
+    reader.onload=function(){
+      setEditorContent(reader.result||'');
+      showToast('📄 Fichier texte chargé');
+    };
+    reader.onerror=()=>showToast('⚠️ Impossible de lire ce fichier texte');
+    reader.readAsText(file,'utf-8');
+  }
 }
 
 let _tiptapReady = false;

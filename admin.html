@@ -154,8 +154,19 @@ main{padding:12px 12px 100px;}
 
 /* ═══ TEXTE LIBRE ══════════════════════════════════════════ */
 .free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:break-word;}
-/* Éditeur Quill : rendre visible et lisible dans l'admin */
-.quill-editor{min-height:160px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px;}
+/* Éditeur TipTap */
+.tiptap-wrap{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--white);margin-bottom:10px;}
+.tiptap-toolbar{display:flex;gap:2px;padding:6px 8px;background:#f8f9fa;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+.tiptap-toolbar button{background:none;border:1px solid transparent;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:13px;font-family:inherit;color:var(--text);line-height:1.4;transition:background .15s;}
+.tiptap-toolbar button:hover{background:white;border-color:var(--border);}
+.tiptap-toolbar button.is-active{background:var(--accent);color:white;border-color:var(--accent);}
+.tiptap-toolbar .tsep{width:1px;height:18px;background:var(--border);margin:0 4px;align-self:center;}
+.tiptap-editor{min-height:160px;padding:10px 12px;font-size:14px;line-height:1.65;cursor:text;}
+.tiptap-editor .ProseMirror{outline:none;min-height:140px;}
+.tiptap-editor .ProseMirror p{margin:0 0 6px;}
+.tiptap-editor .ProseMirror ul,.tiptap-editor .ProseMirror ol{padding-left:20px;margin:0 0 6px;}
+.tiptap-editor .ProseMirror a{color:var(--accent-dk);text-decoration:underline;}
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none;float:left;height:0;}
 
 .last-update{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 0;}
 
@@ -417,10 +428,17 @@ body {background:#ECEEF4;}
 .move-btn:hover { background:var(--accent); border-color:var(--accent); color:white; }
 .move-btn:disabled { opacity:.3; cursor:default; }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+  import { Editor } from 'https://esm.sh/@tiptap/core@2';
+  import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2';
+  import Underline from 'https://esm.sh/@tiptap/extension-underline@2';
+  import Link from 'https://esm.sh/@tiptap/extension-link@2';
+  import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder@2';
+  window.__TipTap = { Editor, StarterKit, Underline, Link, Placeholder };
+  window.dispatchEvent(new CustomEvent('tiptap-ready'));
+</script>
 </head>
 <body>
 
@@ -1543,7 +1561,7 @@ function loadContentEditor(){
   else if(tab.type==='evenements') area.innerHTML=buildAdminEvents();
   else if(tab.type==='libre') {
     area.innerHTML=buildAdminLibre(tab.id);
-    setTimeout(()=>initLibreQuill(tab.id), 50);
+    setTimeout(()=>initLibreTipTap(tab.id), 50);
   }
 }
 
@@ -1725,25 +1743,67 @@ function buildAdminLibre(tabId){
       <button class="lang-tab-btn" onclick="switchLangTab('libre','en','${tabId}',this)">🇬🇧 EN</button>
     </div>
     <div class="lang-fields" id="lf-libre-${tabId}">
-      <div class="active">
+      <div class="active" id="lf-libre-${tabId}-fr">
         <label>Texte FR</label>
-        <div id="libre-fr-${tabId}-editor" class="quill-editor"></div>
+        <div class="tiptap-wrap">
+          <div class="tiptap-toolbar" id="libre-fr-${tabId}-toolbar">
+            <button data-cmd="bold" onclick="tiptapFmt('libre-fr-${tabId}','bold')" title="Gras"><b>B</b></button>
+            <button data-cmd="italic" onclick="tiptapFmt('libre-fr-${tabId}','italic')" title="Italique"><i>I</i></button>
+            <button data-cmd="underline" onclick="tiptapFmt('libre-fr-${tabId}','underline')" title="Souligné"><u>U</u></button>
+            <span class="tsep"></span>
+            <button data-cmd="link" onclick="tiptapFmt('libre-fr-${tabId}','link')" title="Lien">🔗</button>
+            <span class="tsep"></span>
+            <button data-cmd="bulletList" onclick="tiptapFmt('libre-fr-${tabId}','bulletList')" title="Liste à puces">• ≡</button>
+            <button data-cmd="orderedList" onclick="tiptapFmt('libre-fr-${tabId}','orderedList')" title="Liste numérotée">1 ≡</button>
+            <span class="tsep"></span>
+            <button onclick="tiptapFmt('libre-fr-${tabId}','clear')" title="Effacer le formatage">✕</button>
+          </div>
+          <div id="libre-fr-${tabId}-editor" class="tiptap-editor"></div>
+        </div>
         <textarea id="libre-fr-${tabId}" style="display:none">${escVal(cc.fr||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('fr','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (FR)</button>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('fr','${tabId}')">📄 Charger un fichier TXT (FR)</button>
         <input type="file" id="libre-file-fr-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-fr-${tabId}')">
       </div>
-      <div>
+      <div id="lf-libre-${tabId}-nl">
         <label>Tekst NL</label>
-        <div id="libre-nl-${tabId}-editor" class="quill-editor"></div>
+        <div class="tiptap-wrap">
+          <div class="tiptap-toolbar" id="libre-nl-${tabId}-toolbar">
+            <button data-cmd="bold" onclick="tiptapFmt('libre-nl-${tabId}','bold')" title="Gras"><b>B</b></button>
+            <button data-cmd="italic" onclick="tiptapFmt('libre-nl-${tabId}','italic')" title="Italique"><i>I</i></button>
+            <button data-cmd="underline" onclick="tiptapFmt('libre-nl-${tabId}','underline')" title="Souligné"><u>U</u></button>
+            <span class="tsep"></span>
+            <button data-cmd="link" onclick="tiptapFmt('libre-nl-${tabId}','link')" title="Lien">🔗</button>
+            <span class="tsep"></span>
+            <button data-cmd="bulletList" onclick="tiptapFmt('libre-nl-${tabId}','bulletList')" title="Liste à puces">• ≡</button>
+            <button data-cmd="orderedList" onclick="tiptapFmt('libre-nl-${tabId}','orderedList')" title="Liste numérotée">1 ≡</button>
+            <span class="tsep"></span>
+            <button onclick="tiptapFmt('libre-nl-${tabId}','clear')" title="Effacer le formatage">✕</button>
+          </div>
+          <div id="libre-nl-${tabId}-editor" class="tiptap-editor"></div>
+        </div>
         <textarea id="libre-nl-${tabId}" style="display:none">${escVal(cc.nl||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('nl','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (NL)</button>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('nl','${tabId}')">📄 Charger un fichier TXT (NL)</button>
         <input type="file" id="libre-file-nl-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-nl-${tabId}')">
       </div>
-      <div>
+      <div id="lf-libre-${tabId}-en">
         <label>Text EN</label>
-        <div id="libre-en-${tabId}-editor" class="quill-editor"></div>
+        <div class="tiptap-wrap">
+          <div class="tiptap-toolbar" id="libre-en-${tabId}-toolbar">
+            <button data-cmd="bold" onclick="tiptapFmt('libre-en-${tabId}','bold')" title="Gras"><b>B</b></button>
+            <button data-cmd="italic" onclick="tiptapFmt('libre-en-${tabId}','italic')" title="Italique"><i>I</i></button>
+            <button data-cmd="underline" onclick="tiptapFmt('libre-en-${tabId}','underline')" title="Souligné"><u>U</u></button>
+            <span class="tsep"></span>
+            <button data-cmd="link" onclick="tiptapFmt('libre-en-${tabId}','link')" title="Lien">🔗</button>
+            <span class="tsep"></span>
+            <button data-cmd="bulletList" onclick="tiptapFmt('libre-en-${tabId}','bulletList')" title="Liste à puces">• ≡</button>
+            <button data-cmd="orderedList" onclick="tiptapFmt('libre-en-${tabId}','orderedList')" title="Liste numérotée">1 ≡</button>
+            <span class="tsep"></span>
+            <button onclick="tiptapFmt('libre-en-${tabId}','clear')" title="Effacer le formatage">✕</button>
+          </div>
+          <div id="libre-en-${tabId}-editor" class="tiptap-editor"></div>
+        </div>
         <textarea id="libre-en-${tabId}" style="display:none">${escVal(cc.en||'')}</textarea>
-        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('en','${tabId}')" style="margin-top:8px">📄 Charger un fichier TXT (EN)</button>
+        <button class="btn btn-secondary" type="button" onclick="triggerLibreFile('en','${tabId}')">📄 Charger un fichier TXT (EN)</button>
         <input type="file" id="libre-file-en-${tabId}" accept=".txt,text/plain" style="display:none" onchange="applyLibreFile(this,'libre-en-${tabId}')">
       </div>
     </div>
@@ -1769,9 +1829,9 @@ function applyLibreFile(input, targetId){
     const text=reader.result || '';
     const target=document.getElementById(targetId);
     if(target) target.value=text;
-    const editor=document.getElementById(`${targetId}-editor`);
-    if(editor && editor.__quill){
-      editor.__quill.clipboard.dangerouslyPasteHTML(text);
+    const editorDiv=document.getElementById(`${targetId}-editor`);
+    if(editorDiv && editorDiv.__tiptap){
+      editorDiv.__tiptap.commands.setContent(text || '');
     }
     showToast('📄 Fichier texte chargé dans le champ sélectionné');
   };
@@ -1782,23 +1842,71 @@ function applyLibreFile(input, targetId){
   input.value='';
 }
 
-function initLibreQuill(tabId){
+let _tiptapReady = false;
+const _tiptapQueue = [];
+window.addEventListener('tiptap-ready', () => {
+  _tiptapReady = true;
+  while(_tiptapQueue.length) _tiptapQueue.shift()();
+});
+
+function updateTipTapToolbar(editorId, editor){
+  const toolbar = document.getElementById(`${editorId}-toolbar`);
+  if(!toolbar) return;
+  toolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+    const cmd = btn.dataset.cmd;
+    let active = false;
+    if(cmd==='bold') active=editor.isActive('bold');
+    else if(cmd==='italic') active=editor.isActive('italic');
+    else if(cmd==='underline') active=editor.isActive('underline');
+    else if(cmd==='link') active=editor.isActive('link');
+    else if(cmd==='bulletList') active=editor.isActive('bulletList');
+    else if(cmd==='orderedList') active=editor.isActive('orderedList');
+    btn.classList.toggle('is-active', active);
+  });
+}
+
+function tiptapFmt(editorId, cmd){
+  const container = document.getElementById(`${editorId}-editor`);
+  const editor = container?.__tiptap;
+  if(!editor) return;
+  if(cmd==='bold') editor.chain().focus().toggleBold().run();
+  else if(cmd==='italic') editor.chain().focus().toggleItalic().run();
+  else if(cmd==='underline') editor.chain().focus().toggleUnderline().run();
+  else if(cmd==='link'){
+    const prev = editor.isActive('link') ? editor.getAttributes('link').href : '';
+    const url = prompt('URL du lien :', prev||'https://');
+    if(url===null) return;
+    if(url==='') editor.chain().focus().unsetLink().run();
+    else editor.chain().focus().setLink({href:url}).run();
+  }
+  else if(cmd==='bulletList') editor.chain().focus().toggleBulletList().run();
+  else if(cmd==='orderedList') editor.chain().focus().toggleOrderedList().run();
+  else if(cmd==='clear') editor.chain().focus().clearNodes().unsetAllMarks().run();
+  updateTipTapToolbar(editorId, editor);
+}
+
+function initLibreTipTap(tabId){
+  if(!_tiptapReady){ _tiptapQueue.push(()=>initLibreTipTap(tabId)); return; }
+  const { Editor, StarterKit, Underline, Link, Placeholder } = window.__TipTap;
   ['fr','nl','en'].forEach(lang=>{
-    const editor=document.getElementById(`libre-${lang}-${tabId}-editor`);
+    const container=document.getElementById(`libre-${lang}-${tabId}-editor`);
     const hidden=document.getElementById(`libre-${lang}-${tabId}`);
-    if(!editor || !hidden || editor.__quill) return;
-    // If editor container is hidden, temporarily show it to allow Quill to initialize correctly
-    const prevDisplay = editor.style.display;
-    let madeVisible = false;
-    if(getComputedStyle(editor).display === 'none'){
-      editor.style.display = 'block';
-      madeVisible = true;
-    }
-    const quill=new Quill(editor,{theme:'snow',modules:{toolbar:[['bold','italic','underline','link'],['list','bullet'],['clean']]}});
-    quill.root.innerHTML=hidden.value || '';
-    quill.on('text-change',()=>{ hidden.value=quill.root.innerHTML; });
-    editor.__quill=quill;
-    if(madeVisible){ editor.style.display = prevDisplay || ''; }
+    if(!container || !hidden || container.__tiptap) return;
+    const editorId=`libre-${lang}-${tabId}`;
+    const editor=new Editor({
+      element: container,
+      extensions: [
+        StarterKit,
+        Underline,
+        Link.configure({ openOnClick: false }),
+        Placeholder.configure({ placeholder: 'Rédigez votre contenu ici…' }),
+      ],
+      content: hidden.value || '',
+      onUpdate: ({ editor }) => { hidden.value=editor.getHTML(); },
+      onSelectionUpdate: ({ editor }) => { updateTipTapToolbar(editorId, editor); },
+    });
+    container.__tiptap=editor;
+    updateTipTapToolbar(editorId, editor);
   });
 }
 
@@ -2032,20 +2140,6 @@ window.addEventListener('DOMContentLoaded', async function(){
   } else {
     document.getElementById('admin-login-page').style.display = 'flex';
   }
-  // Gestion Quill click
-  document.addEventListener('click', function(e){
-    const qe = e.target.closest && e.target.closest('.quill-editor');
-    if(!qe) return;
-    const id = qe.id || '';
-    const m = id.match(/^libre-(fr|nl|en)-(.+)-editor$/);
-    if(!m) return;
-    const tabId = m[2];
-    try{ initLibreQuill(tabId); }catch(err){ console.error('initLibreQuill error',err); }
-    setTimeout(()=>{
-      if(qe.__quill) try{ qe.__quill.focus(); }catch(e){}
-      const inner = qe.querySelector('[contenteditable]'); if(inner) try{ inner.focus(); }catch(e){}
-    },120);
-  });
   // Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/admin-sw.js').catch(()=>{});

@@ -240,6 +240,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
 
+/* Plan du site */
+.plan-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.plan-img{width:100%;display:block;cursor:zoom-in;touch-action:pinch-zoom;}
+.plan-caption{padding:10px 14px;font-size:12px;color:var(--muted);text-align:center;}
+.plan-fullscreen-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;border:none;background:var(--accent-bg);color:var(--accent-dk);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border-top:1px solid var(--border);}
+#plan-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;}
+#plan-modal.open{display:flex;}
+#plan-modal img{max-width:100%;max-height:90vh;object-fit:contain;touch-action:pinch-zoom;}
+#plan-modal-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.15);border:none;color:white;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
 /* ═══ TOAST ════════════════════════════════════════════════ */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--green);color:white;padding:10px 22px;border-radius:22px;font-size:14px;font-weight:700;opacity:0;transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -330,6 +340,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 </div>
 <!-- Lang picker -->
+<div id="plan-modal" onclick="if(event.target===this)closePlanModal()">
+  <button id="plan-modal-close" onclick="closePlanModal()">✕</button>
+  <img id="plan-modal-img" src="" alt="Plan">
+</div>
 <div id="lang-picker" onclick="if(event.target===this)hideLangPicker()">
   <div>
     <p style="font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Langue / Taal / Language</p>
@@ -891,12 +905,22 @@ function renderTabContent(tab){
   else if(tab.type==='libre'){
     const cc=DATA.customContent[tab.id] || {};
     const txt=cc ? tl(cc) : '';
-    const pdf = cc.pdf || '';
-    let html = txt ? `<div class="free-content">${txt}</div>` : `<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
-    if(pdf){
-      html += `<p style="margin-top:12px"><a href="${esc(pdf)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:white;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700">📄 ${LANG==='nl'?'Plan PDF openen':LANG==='en'?'Open PDF plan':'Ouvrir le plan PDF'}</a></p>`;
+    el.innerHTML = txt ? `<div class="free-content">${txt}</div>` : `<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
+  }
+  else if(tab.type==='plan'){
+    const cc=DATA.customContent[tab.id] || {};
+    const img=cc.planImage || '';
+    const cap=cc.planCaption || '';
+    if(img){
+      const openLbl = LANG==='nl'?'Openen in volledig scherm':LANG==='en'?'Open full screen':'Plein écran';
+      el.innerHTML=`<div class="plan-wrap">
+        <img class="plan-img" src="${esc(img)}" alt="Plan" onclick="openPlanModal('${esc(img)}')">
+        ${cap?`<div class="plan-caption">${esc(cap)}</div>`:''}
+        <button class="plan-fullscreen-btn" onclick="openPlanModal('${esc(img)}')">🔍 ${openLbl}</button>
+      </div>`;
+    } else {
+      el.innerHTML=`<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
     }
-    el.innerHTML = html;
   }
 }
 
@@ -1136,14 +1160,24 @@ function openContent(tabId){
   else if(tab.type==='libre'){
     const cc = DATA.customContent[tab.id] || {};
     const txt = tl(cc) || '';
-    const pdf = cc.pdf || '';
-    let freeHtml = txt
+    body.innerHTML = txt
       ? `<div class="free-content">${txt}</div>`
       : `<div class="empty-state">${t('noContent')}</div>`;
-    if(pdf){
-      freeHtml += `<p style="margin-top:12px"><a href="${esc(pdf)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:white;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700">📄 ${LANG==='nl'?'Plan PDF openen':LANG==='en'?'Open PDF plan':'Ouvrir le plan PDF'}</a></p>`;
+  }
+  else if(tab.type==='plan'){
+    const cc = DATA.customContent[tab.id] || {};
+    const img = cc.planImage || '';
+    const cap = cc.planCaption || '';
+    if(img){
+      const openLbl = LANG==='nl'?'Openen in volledig scherm':LANG==='en'?'Open full screen':'Plein écran';
+      body.innerHTML = `<div class="plan-wrap">
+        <img class="plan-img" src="${esc(img)}" alt="Plan" onclick="openPlanModal('${esc(img)}')">
+        ${cap?`<div class="plan-caption">${esc(cap)}</div>`:''}
+        <button class="plan-fullscreen-btn" onclick="openPlanModal('${esc(img)}')">🔍 ${openLbl}</button>
+      </div>`;
+    } else {
+      body.innerHTML = `<div class="empty-state">${t('noContent')}</div>`;
     }
-    body.innerHTML = freeHtml;
   }
 
   // Afficher + mémoriser l'onglet actif pour le changement de langue
@@ -1157,6 +1191,16 @@ function goHome(){
   document.getElementById('content-screen').style.display='none';
   document.getElementById('home-screen').style.display='block';
   window.scrollTo(0,0);
+}
+
+function openPlanModal(src){
+  const m=document.getElementById('plan-modal');
+  const i=document.getElementById('plan-modal-img');
+  if(m&&i){ i.src=src; m.classList.add('open'); document.body.style.overflow='hidden'; }
+}
+function closePlanModal(){
+  const m=document.getElementById('plan-modal');
+  if(m){ m.classList.remove('open'); document.body.style.overflow=''; }
 }
 
 /* Remplacer renderNavTabs + renderPanels par renderNavGrid */

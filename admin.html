@@ -620,6 +620,7 @@ body {background:#ECEEF4;}
     <label>Type de contenu</label>
     <select id="new-tab-type">
      <option value="libre">Texte libre</option>
+     <option value="plan">Plan du site (image)</option>
      <option value="regles">Consignes (cartes)</option>
      <option value="contacts">Contacts</option>
      <option value="horaires">Horaires</option>
@@ -1564,6 +1565,7 @@ function loadContentEditor(){
     area.innerHTML=buildAdminLibre(tab.id);
     setTimeout(()=>initLibreTipTap(tab.id), 50);
   }
+  else if(tab.type==='plan')        { area.innerHTML=buildAdminPlan(tab.id); }
 }
 
 /* ── ADMIN BUILDERS ── */
@@ -1808,12 +1810,57 @@ function buildAdminLibre(tabId){
         <input type="file" id="libre-file-en-${tabId}" accept=".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="applyLibreFile(this,'libre-en-${tabId}')">
       </div>
     </div>
-    <div class="form-section" style="margin-top:12px;">
-      <label>Plan PDF (URL ou chemin relatif)</label>
-      <input type="text" id="libre-pdf-${tabId}" value="${escVal(cc.pdf||'')}" placeholder="Documents/plan.pdf">
-      <small style="color:var(--muted);font-size:12px;display:block;margin-top:4px">Ajoutez ici le lien vers le plan PDF à afficher dans cet onglet.</small>
-    </div>
   </div>`;
+}
+
+/* ── PLAN DU SITE ── */
+function buildAdminPlan(tabId){
+  const cc=DATA.customContent[tabId]||{};
+  const hasImg=!!(cc.planImage);
+  return `<div class="form-section">
+    <div class="form-section-title">🗺️ Plan du site</div>
+    <input type="hidden" id="plan-img-data-${tabId}" value="${escVal(cc.planImage||'')}">
+    <div id="plan-preview-${tabId}" style="margin-bottom:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:#f8f9fa;min-height:120px;display:flex;align-items:center;justify-content:center;">
+      ${hasImg
+        ? `<img src="${escVal(cc.planImage)}" style="max-width:100%;max-height:360px;display:block;margin:auto;" alt="Plan">`
+        : `<span style="color:var(--muted);font-size:13px;padding:32px">Aucune image chargée</span>`}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <label class="btn btn-secondary" style="cursor:pointer;margin:0">
+        📷 Charger une image
+        <input type="file" accept="image/*" style="display:none" onchange="applyPlanImage(this,'${tabId}')">
+      </label>
+      ${hasImg?`<button class="btn btn-danger" type="button" onclick="clearPlanImage('${tabId}')" style="margin:0">✕ Supprimer</button>`:''}
+    </div>
+    <small style="color:var(--muted);font-size:12px;display:block;margin-bottom:12px">Formats acceptés : JPG, PNG, WebP, GIF. Recommandé : JPEG compressé ≤ 500 KB.</small>
+    <label>Légende (optionnelle)</label>
+    <input type="text" id="plan-caption-${tabId}" value="${escVal(cc.planCaption||'')}" placeholder="Ex : Plan du quartier — bâtiments A, P1, NDLS">
+  </div>`;
+}
+
+function applyPlanImage(input, tabId){
+  const file=input?.files?.[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ showToast('⚠️ Image trop lourde (max 2 MB recommandé)'); }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const data=reader.result||'';
+    document.getElementById(`plan-img-data-${tabId}`).value=data;
+    const preview=document.getElementById(`plan-preview-${tabId}`);
+    if(preview) preview.innerHTML=`<img src="${data}" style="max-width:100%;max-height:360px;display:block;margin:auto;" alt="Plan">`;
+    showToast('🗺️ Image chargée — pensez à sauvegarder');
+  };
+  reader.onerror=()=>showToast('⚠️ Impossible de lire cette image');
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+function clearPlanImage(tabId){
+  if(!confirm('Supprimer le plan ?')) return;
+  document.getElementById(`plan-img-data-${tabId}`).value='';
+  const preview=document.getElementById(`plan-preview-${tabId}`);
+  if(preview) preview.innerHTML=`<span style="color:var(--muted);font-size:13px;padding:32px">Aucune image chargée</span>`;
+  showToast('Plan supprimé — pensez à sauvegarder');
 }
 
 /* ── CRUD ── */
@@ -2013,8 +2060,12 @@ function saveAll(){
         const ta=document.getElementById(`libre-${lg}-${selTabId}`);
         if(ta) DATA.customContent[selTabId][lg]=ta.value;
       });
-      const pdfInput=document.getElementById(`libre-pdf-${selTabId}`);
-      if(pdfInput) DATA.customContent[selTabId].pdf=pdfInput.value.trim();
+    } else if(selTab.type==='plan'){
+      if(!DATA.customContent[selTabId]) DATA.customContent[selTabId]={};
+      const img=document.getElementById(`plan-img-data-${selTabId}`);
+      const cap=document.getElementById(`plan-caption-${selTabId}`);
+      if(img) DATA.customContent[selTabId].planImage=img.value;
+      if(cap) DATA.customContent[selTabId].planCaption=cap.value.trim();
     }
   }
   DATA._schemaVersion=SCHEMA_VERSION;

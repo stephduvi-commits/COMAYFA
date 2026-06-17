@@ -21,8 +21,8 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Supabase : toujours réseau
   if(e.request.url.includes('supabase.co')) return;
-  // admin.html : toujours réseau (jamais en cache pour que les mises à jour soient immédiates)
-  if(e.request.url.endsWith('/admin.html') || e.request.url.endsWith('admin.html')) return;
+  // Fichiers HTML : toujours réseau, jamais en cache
+  if(e.request.url.endsWith('.html')) return;
   // CDN assets : cache-first
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {

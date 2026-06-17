@@ -1072,10 +1072,7 @@ updateSplashTexts();
   } catch(e){ /* offline — localStorage suffit */ }
 })();
 
-// Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(()=>{});
-}
+// Pas de service worker sur index.html — PWA uniquement pour admin.html
 
 setInterval(()=>{
   const now=new Date();

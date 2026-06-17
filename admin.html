@@ -2131,7 +2131,7 @@ function sendWaNotification(newEvents, newAnnonces){
   let blocks=[];
 
   newAnnonces.forEach(a=>{
-    const icon=a.type==='urgent'?'🚨 ':a.type==='info'?'ℹ ':'📣 ';
+    const icon=a.type==='urgent'?'⚠ ':a.type==='info'?'ℹ ':'';
     let b='';
     if(a.fr?.titre) b+='*'+icon+'[FR] '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
     if(a.nl?.titre) b+='*'+icon+'[NL] '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
@@ -2142,18 +2142,16 @@ function sendWaNotification(newEvents, newAnnonces){
   newEvents.forEach(ev=>{
     const jour=ev.jour||'';
     const heure=ev.heure?' · '+ev.heure:'';
-    const moisFR=ev.mois?.fr||''; const moisNL=ev.mois?.nl||''; const moisEN=ev.mois?.en||'';
-    // date line: "8 février / februari / February · 14h00"
-    const moisJoints=[moisFR,moisNL,moisEN].filter(Boolean).join(' / ');
-    const dateLine=jour||moisJoints?'📅 '+(jour?jour+' ':'')+moisJoints+heure:'';
-    let b=dateLine?dateLine+'\n':'';
-    if(ev.fr?.titre) b+='*🗓 [FR] '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
-    if(ev.nl?.titre) b+='*🗓 [NL] '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
-    if(ev.en?.titre) b+='*🗓 [EN] '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
+    const moisJoints=[ev.mois?.fr,ev.mois?.nl,ev.mois?.en].filter(Boolean).join(' / ');
+    const dateLine=jour||moisJoints?(jour?jour+' ':'')+moisJoints+heure:'';
+    let b=dateLine?'_'+dateLine+'_\n':'';
+    if(ev.fr?.titre) b+='*► [FR] '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
+    if(ev.nl?.titre) b+='*► [NL] '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
+    if(ev.en?.titre) b+='*► [EN] '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
-  const msg='📢 *'+DATA.titre+'*\n\n'+blocks.join('\n\n- - -\n\n');
+  const msg='★ *'+DATA.titre+'*\n\n'+blocks.join('\n\n- - -\n\n');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 

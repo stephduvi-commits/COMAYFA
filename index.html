@@ -721,6 +721,14 @@ let DATA=(()=>{try{
   if(d&&d._schemaVersion===SCHEMA_VERSION) return d;
   return JSON.parse(JSON.stringify(DEFAULT));
 }catch(e){return JSON.parse(JSON.stringify(DEFAULT));}})();
+
+function expireOldAnnonces(){
+  const c=new Date();c.setMonth(c.getMonth()-1);
+  const s=c.toISOString().split('T')[0];
+  (DATA.annonces||[]).forEach(a=>{if(a.isNew&&a.date&&a.date<=s)a.isNew=false;});
+}
+expireOldAnnonces();
+
 let adminLoggedIn=false;
 let LANG='fr';
 const LAST_VISIT_KEY='panneau_last_visit';
@@ -1065,6 +1073,7 @@ updateSplashTexts();
     const { data, error } = await sbClient.from('panneau_data').select('data').eq('id',1).single();
     if(!error && data?.data && data.data._schemaVersion === SCHEMA_VERSION){
       Object.assign(DATA, data.data);
+      expireOldAnnonces();
       localStorage.setItem('panneau_v4', JSON.stringify(DATA));
       applyColor(DATA.accentColor||'#F49634');
       updateSplashTexts();

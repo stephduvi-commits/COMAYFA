@@ -685,6 +685,17 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, 
   auth: { persistSession: false, autoRefreshToken: false }
 });
 
+function expireOldAnnonces() {
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - 1);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  let changed = false;
+  (DATA.annonces || []).forEach(a => {
+    if (a.isNew && a.date && a.date <= cutoffStr) { a.isNew = false; changed = true; }
+  });
+  return changed;
+}
+
 async function loadFromSupabase() {
   try {
     const { data, error } = await supabaseClient.from('panneau_data').select('data').eq('id', 1).single();
@@ -692,6 +703,7 @@ async function loadFromSupabase() {
     const d = data.data;
     if (d && d._schemaVersion === SCHEMA_VERSION) {
       Object.assign(DATA, d);
+      if (expireOldAnnonces()) saveToSupabase();
       localStorage.setItem('panneau_v4', JSON.stringify(DATA));
       return true;
     }
@@ -1057,6 +1069,7 @@ let DATA=(()=>{try{
   if(d&&d._schemaVersion===SCHEMA_VERSION) return d;
   return JSON.parse(JSON.stringify(DEFAULT));
 }catch(e){return JSON.parse(JSON.stringify(DEFAULT));}})();
+expireOldAnnonces();
 let adminLoggedIn=false;
 let LANG='fr';
 const LAST_VISIT_KEY='panneau_last_visit';

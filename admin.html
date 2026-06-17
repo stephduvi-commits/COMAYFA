@@ -627,6 +627,7 @@ body {background:#ECEEF4;}
     <label>Type de contenu</label>
     <select id="new-tab-type">
      <option value="libre">Texte libre</option>
+     <option value="liens">Liens utiles (boutons)</option>
      <option value="plan">Plan du site (image)</option>
      <option value="regles">Consignes (cartes)</option>
      <option value="contacts">Contacts</option>
@@ -1294,9 +1295,23 @@ function renderTabContent(tab){
     const txt=cc?tl(cc):'';
     el.innerHTML=txt?`<div class="free-content">${esc(txt)}</div>`:`<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
   }
+  else if(tab.type==='liens')       el.innerHTML=buildLiens(tab.id);
 }
 
 /* ── BUILDERS ── */
+function buildLiens(tabId){
+  const items=(DATA.customContent[tabId]?.items)||[];
+  if(!items.length) return `<p style="color:var(--muted);font-size:14px;padding:16px">${t('noContent')}</p>`;
+  return `<div class="liens-grid">`+items.map(item=>{
+    const label=tl(item.label)||'';
+    const url=item.url||'#';
+    const img=item.image||'';
+    const imgHtml=img?`<img src="${escVal(img)}" alt="${escVal(label)}" class="lien-btn-img">`:`<span class="lien-btn-fallback">🔗</span>`;
+    const target=url==='#'?'':'target="_blank" rel="noopener"';
+    return `<a href="${escVal(url)}" ${target} class="lien-btn">${imgHtml}<span class="lien-btn-label">${escVal(label)}</span></a>`;
+  }).join('')+'</div>';
+}
+
 function buildRegles(){
   if(!DATA.regles.length) return `<p style="color:var(--muted)">${t('noContent')}</p>`;
   return `<div class="rules-grid">`+DATA.regles.map((r,i)=>{
@@ -1575,6 +1590,7 @@ function loadContentEditor(){
     setTimeout(()=>initLibreTipTap(tab.id), 50);
   }
   else if(tab.type==='plan')        { area.innerHTML=buildAdminPlan(tab.id); }
+  else if(tab.type==='liens')       { area.innerHTML=buildAdminLiens(tab.id); }
 }
 
 /* ── ADMIN BUILDERS ── */
@@ -1878,6 +1894,92 @@ function clearPlanImage(tabId){
   showToast('Plan supprimé — pensez à sauvegarder');
 }
 
+/* ── LIENS UTILES ── */
+function buildAdminLiens(tabId){
+  if(!DATA.customContent[tabId]) DATA.customContent[tabId]={items:[]};
+  const items=DATA.customContent[tabId].items||[];
+  let html=`<button class="btn btn-add" onclick="addLien('${tabId}')">➕ Ajouter un lien</button>
+  <p class="form-hint" style="margin:6px 0 12px">Chaque lien s'affiche sous forme de bouton carré avec icône et texte dans l'app.</p>
+  <div id="liens-list-${tabId}">`;
+  items.forEach((item,i)=>{
+    const img=item.image||'';
+    const isData=img.startsWith('data:');
+    html+=`<div class="admin-item">
+      <button class="btn btn-danger" style="float:right;margin-bottom:8px" onclick="delLien('${tabId}',${i})">✕ Supprimer</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;clear:both">
+        <div style="width:64px;height:64px;border:2px solid var(--border);border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--bg-alt)">
+          ${img?`<img src="${escVal(img)}" style="width:100%;height:100%;object-fit:contain">`:`<span style="font-size:28px">🔗</span>`}
+        </div>
+        <div style="flex:1">
+          <label>Icône / Logo</label>
+          ${isData?`<div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--green);font-weight:600">✔ Image uploadée</span>
+            <button class="btn btn-danger" style="padding:3px 8px;font-size:11px" onclick="clearLienImage('${tabId}',${i})">✕ Retirer</button>
+          </div>`:`<div style="display:flex;gap:6px">
+            <input type="url" id="li-img-${tabId}-${i}" value="${escVal(img)}" placeholder="https://... URL de l'icône" style="flex:1">
+            <label class="btn btn-secondary" style="cursor:pointer;padding:6px 10px;font-size:12px;white-space:nowrap;margin:0">
+              📂 Fichier<input type="file" accept="image/*" onchange="applyLienImage(this,'${tabId}',${i})" style="display:none">
+            </label>
+          </div>`}
+          ${isData?`<input type="hidden" id="li-img-${tabId}-${i}" value="${escVal(img)}">`:''}
+        </div>
+      </div>
+      <label>URL du lien</label>
+      <input type="url" id="li-href-${tabId}-${i}" value="${escVal(item.url||'')}" placeholder="https://...">
+      <div class="form-row" style="margin-top:8px">
+        <div><label>Texte FR</label><input type="text" id="li-fr-${tabId}-${i}" value="${escVal(item.label?.fr||'')}"></div>
+        <div><label>Texte NL</label><input type="text" id="li-nl-${tabId}-${i}" value="${escVal(item.label?.nl||'')}"></div>
+        <div><label>Texte EN</label><input type="text" id="li-en-${tabId}-${i}" value="${escVal(item.label?.en||'')}"></div>
+      </div>
+    </div>`;
+  });
+  return html+'</div>';
+}
+
+function addLien(tabId){
+  if(!DATA.customContent[tabId]) DATA.customContent[tabId]={};
+  if(!DATA.customContent[tabId].items) DATA.customContent[tabId].items=[];
+  _saveLiensState(tabId);
+  DATA.customContent[tabId].items.push({image:'',url:'',label:{fr:'',nl:'',en:''}});
+  loadContentEditor();
+}
+function delLien(tabId,i){
+  _saveLiensState(tabId);
+  if(DATA.customContent[tabId]?.items) DATA.customContent[tabId].items.splice(i,1);
+  loadContentEditor();
+}
+function applyLienImage(input,tabId,i){
+  const file=input.files[0];
+  if(!file) return;
+  if(file.size>150000){showToast('⚠️ Icône trop grande (max 150 Ko)');return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _saveLiensState(tabId);
+    if(!DATA.customContent[tabId]?.items?.[i]) return;
+    DATA.customContent[tabId].items[i].image=e.target.result;
+    loadContentEditor();
+  };
+  reader.readAsDataURL(file);
+}
+function clearLienImage(tabId,i){
+  _saveLiensState(tabId);
+  if(DATA.customContent[tabId]?.items?.[i]) DATA.customContent[tabId].items[i].image='';
+  loadContentEditor();
+}
+function _saveLiensState(tabId){
+  const items=DATA.customContent[tabId]?.items;
+  if(!items) return;
+  DATA.customContent[tabId].items=items.map((_,i)=>({
+    image: document.getElementById(`li-img-${tabId}-${i}`)?.value||_.image||'',
+    url:   document.getElementById(`li-href-${tabId}-${i}`)?.value.trim()||'',
+    label:{
+      fr: document.getElementById(`li-fr-${tabId}-${i}`)?.value.trim()||'',
+      nl: document.getElementById(`li-nl-${tabId}-${i}`)?.value.trim()||'',
+      en: document.getElementById(`li-en-${tabId}-${i}`)?.value.trim()||''
+    }
+  }));
+}
+
 /* ── CRUD ── */
 function triggerLibreFile(lang, tabId){
   const input=document.getElementById(`libre-file-${lang}-${tabId}`);
@@ -2086,6 +2188,8 @@ function saveAll(){
       const cap=document.getElementById(`plan-caption-${selTabId}`);
       if(img) DATA.customContent[selTabId].planImage=img.value;
       if(cap) DATA.customContent[selTabId].planCaption=cap.value.trim();
+    } else if(selTab.type==='liens'){
+      _saveLiensState(selTabId);
     }
   }
   DATA._schemaVersion=SCHEMA_VERSION;

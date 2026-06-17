@@ -250,6 +250,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 #plan-modal img{max-width:100%;max-height:90vh;object-fit:contain;touch-action:pinch-zoom;}
 #plan-modal-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.15);border:none;color:white;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
+/* Liens utiles */
+.liens-grid{display:flex;flex-wrap:wrap;gap:12px;padding:16px;justify-content:flex-start;}
+.lien-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;width:90px;height:90px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text);padding:10px 6px;transition:background .15s,transform .15s,box-shadow .15s;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.lien-btn:active{background:var(--accent);color:#fff;transform:scale(.95);}
+@media(hover:hover){.lien-btn:hover{background:var(--accent);color:#fff;transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.15);}}
+.lien-btn-img{width:44px;height:44px;object-fit:contain;border-radius:6px;}
+.lien-btn-fallback{font-size:30px;line-height:1;}
+.lien-btn-label{font-size:11px;font-weight:700;text-align:center;line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
 /* ═══ TOAST ════════════════════════════════════════════════ */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--green);color:white;padding:10px 22px;border-radius:22px;font-size:14px;font-weight:700;opacity:0;transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -921,9 +930,23 @@ function renderTabContent(tab){
       el.innerHTML=`<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
     }
   }
+  else if(tab.type==='liens') el.innerHTML=buildLiens(tab.id);
 }
 
 /* ── BUILDERS ── */
+function buildLiens(tabId){
+  const items=(DATA.customContent[tabId]?.items)||[];
+  if(!items.length) return `<p style="color:var(--muted);font-size:14px;padding:16px">${t('noContent')}</p>`;
+  return `<div class="liens-grid">`+items.map(item=>{
+    const label=tl(item.label)||'';
+    const url=item.url||'#';
+    const img=item.image||'';
+    const imgHtml=img?`<img src="${esc(img)}" alt="${esc(label)}" class="lien-btn-img">`:`<span class="lien-btn-fallback">🔗</span>`;
+    const target=url==='#'?'':'target="_blank" rel="noopener"';
+    return `<a href="${esc(url)}" ${target} class="lien-btn">${imgHtml}<span class="lien-btn-label">${esc(label)}</span></a>`;
+  }).join('')+'</div>';
+}
+
 function buildRegles(){
   if(!DATA.regles.length) return `<p style="color:var(--muted)">${t('noContent')}</p>`;
   return `<div class="rules-grid">`+DATA.regles.map((r,i)=>{
@@ -1178,6 +1201,7 @@ function openContent(tabId){
       body.innerHTML = `<div class="empty-state">${t('noContent')}</div>`;
     }
   }
+  else if(tab.type==='liens') body.innerHTML=buildLiens(tab.id);
 
   // Afficher + mémoriser l'onglet actif pour le changement de langue
   cs.dataset.activeTab=tabId;

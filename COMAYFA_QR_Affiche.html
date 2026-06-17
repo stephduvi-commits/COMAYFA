@@ -107,22 +107,42 @@
 
   /* Intro */
   .intro {
-    text-align: center;
-    padding: 16px 20px;
+    padding: 14px 18px;
     background: #FFF5E8;
     border-radius: 12px;
     border: 2px solid #F9C999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
   .intro h2 {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 800;
     color: #1A1A2E;
-    margin-bottom: 6px;
+    text-align: center;
+    margin-bottom: 2px;
   }
-  .intro p {
-    font-size: 12px;
-    color: #7A7A95;
-    line-height: 1.5;
+  .intro-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #444;
+  }
+  .intro-lang {
+    font-size: 9px;
+    font-weight: 800;
+    background: #F49634;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    letter-spacing: .3px;
+  }
+  .intro-row b {
+    color: #1A1A2E;
   }
 
   /* Zone QR centrale */
@@ -140,18 +160,7 @@
     display: block;
     border-radius: 12px;
   }
-  /* Coin déco QR */
-  .qr-corner {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-color: #F49634;
-    border-style: solid;
-  }
-  .qr-corner.tl { top: -4px; left: -4px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-  .qr-corner.tr { top: -4px; right: -4px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-  .qr-corner.bl { bottom: -4px; left: -4px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-  .qr-corner.br { bottom: -4px; right: -4px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+  .qr-corner { display: none; }
 
   .scan-label {
     font-size: 20px;
@@ -327,9 +336,19 @@
 
     <!-- INTRO -->
     <div class="intro">
-      <h2>Informations résidents — Bewonersinfo — Resident information</h2>
-      <p>Scannez le code QR ci-dessous pour accéder aux consignes, contacts, horaires et annonces<br>
-      <em>Scan de QR-code hieronder voor regels, contacten, uren en mededelingen</em></p>
+      <h2>Informations résidents · Bewonersinfo · Resident info</h2>
+      <div class="intro-row">
+        <span class="intro-lang">FR</span>
+        <span>Accédez en temps réel aux <b>règles du camp, horaires, contacts, annonces et événements</b>. Fonctionne hors ligne.</span>
+      </div>
+      <div class="intro-row">
+        <span class="intro-lang">NL</span>
+        <span>Bekijk in real-time de <b>kampregels, uurroosters, contacten, aankondigingen en evenementen</b>. Werkt offline.</span>
+      </div>
+      <div class="intro-row">
+        <span class="intro-lang">EN</span>
+        <span>Access <b>camp rules, schedules, contacts, announcements and events</b> in real time. Works offline.</span>
+      </div>
     </div>
 
     <!-- QR CODE -->
@@ -358,45 +377,73 @@
     <!-- FEATURES -->
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">📋</div>
+        <div class="feature-icon">🔥</div>
         <div class="feature-text">
-          <strong>Consignes / Regels</strong>
-          <span>Règles de vie, sécurité incendie, tri des déchets</span>
+          <strong>Incendie / Brand / Fire</strong>
+          <span>Consignes d'évacuation · Evacuatieprocedures · Evacuation procedures</span>
         </div>
       </div>
       <div class="feature">
         <div class="feature-icon">📞</div>
         <div class="feature-text">
-          <strong>Contacts / Contacten</strong>
-          <span>Numéros utiles, urgences, poste de garde</span>
+          <strong>Contacts / Contacten / Contacts</strong>
+          <span>Numéros utiles · Nuttige nummers · Useful numbers</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📋</div>
+        <div class="feature-text">
+          <strong>Consignes / Regels / Rules</strong>
+          <span>Règles de vie, propreté · Leefregels, netheid · Living rules</span>
         </div>
       </div>
       <div class="feature">
         <div class="feature-icon">🕐</div>
         <div class="feature-text">
-          <strong>Horaires / Openingstijden</strong>
-          <span>Bureau ELU, infirmerie, collecte des déchets</span>
+          <strong>Horaires / Openingstijden / Schedule</strong>
+          <span>Bureau ELU, collecte · Diensten, ophaling · Services, collection</span>
         </div>
       </div>
       <div class="feature">
         <div class="feature-icon">📢</div>
         <div class="feature-text">
-          <strong>Annonces / Mededelingen</strong>
-          <span>Informations et événements à venir</span>
+          <strong>Annonces / Mededelingen / Notices</strong>
+          <span>Avis importants · Belangrijke berichten · Important notices</span>
         </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">🔥</div>
+        <div class="feature-icon">📅</div>
         <div class="feature-text">
-          <strong>Incendie / Brand</strong>
-          <span>Consignes d'évacuation trilingues</span>
+          <strong>Événements / Evenementen / Events</strong>
+          <span>Agenda du camp · Kampagenda · Camp agenda</span>
         </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">📱</div>
+        <div class="feature-icon">🚪</div>
         <div class="feature-text">
-          <strong>Installer l'app</strong>
-          <span>Ajoutez à l'écran d'accueil — fonctionne hors ligne</span>
+          <strong>Check-out / Vertrek / Check-out</strong>
+          <span>Procédure de départ · Vertrekprocedure · Departure procedure</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">☕</div>
+        <div class="feature-text">
+          <strong>Restauration / Catering / Catering</strong>
+          <span>Mess, sandwichs · Mess, broodjes · Mess, sandwiches</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🗺️</div>
+        <div class="feature-text">
+          <strong>Plan du Site / Plattegrond / Site Map</strong>
+          <span>Carte du camp · Kampkaart · Camp map</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-text">
+          <strong>Liens utiles / Nuttige links / Useful links</strong>
+          <span>Ressources en ligne · Online bronnen · Online resources</span>
         </div>
       </div>
     </div>

@@ -1733,9 +1733,11 @@ function buildAdminEvents(){
   DATA.events.forEach((e,i)=>{
     const mois=typeof e.mois==='object'?e.mois:{fr:e.mois,nl:e.mois,en:e.mois};
     html+=`<div class="admin-item"><button class="btn btn-danger" onclick="delEvent(${i})">✕</button>
+      <label>Date <span style="font-weight:400;color:var(--muted)">(masque automatiquement l'événement une fois passé)</span></label>
+      <input type="date" id="edate-${i}" value="${escVal(e.date||'')}" onchange="autoFillEventDate(this,${i})">
       <div class="form-row">
-        <div><label>Jour</label><input type="text" id="ej-${i}" value="${escVal(e.jour)}" maxlength="2"></div>
-        <div><label>Heure</label><input type="text" id="eh-${i}" value="${escVal(e.heure||'')}"></div>
+        <div><label>Jour affiché</label><input type="text" id="ej-${i}" value="${escVal(e.jour)}" maxlength="2" placeholder="ex: 8"></div>
+        <div><label>Heure</label><input type="text" id="eh-${i}" value="${escVal(e.heure||'')}" placeholder="ex: 14h00"></div>
       </div>
       <div class="form-row">
         <div><label>Mois FR</label><input type="text" id="em-${i}-fr" value="${escVal(mois.fr||'')}"></div>
@@ -2097,6 +2099,20 @@ function initLibreTipTap(tabId){
   });
 }
 
+function autoFillEventDate(input, i){
+  const val=input.value;
+  if(!val) return;
+  const d=new Date(val+'T12:00:00');
+  const jour=String(d.getDate());
+  const moisFR=d.toLocaleDateString('fr-BE',{month:'long'});
+  const moisNL=d.toLocaleDateString('nl-BE',{month:'long'});
+  const moisEN=d.toLocaleDateString('en-GB',{month:'long'});
+  const ej=document.getElementById(`ej-${i}`); if(ej&&!ej.value) ej.value=jour;
+  const emfr=document.getElementById(`em-${i}-fr`); if(emfr&&!emfr.value) emfr.value=moisFR;
+  const emnl=document.getElementById(`em-${i}-nl`); if(emnl&&!emnl.value) emnl.value=moisNL;
+  const emen=document.getElementById(`em-${i}-en`); if(emen&&!emen.value) emen.value=moisEN;
+}
+
 function addRegle(){DATA.regles.push({fr:{titre:'',texte:''},nl:{titre:'',texte:''},en:{titre:'',texte:''}});loadContentEditor();}
 function delRegle(i){DATA.regles.splice(i,1);loadContentEditor();}
 function addContact(){DATA.contacts.push({icon:'👤',nom:'',role:{fr:'',nl:'',en:''},tel:''});loadContentEditor();}
@@ -2108,7 +2124,7 @@ function delHoraireLigne(gi,li){DATA.horaires[gi].lignes.splice(li,1);loadConten
 
 function addAnnonce(){const d=new Date().toISOString().split('T')[0];DATA.annonces.push({type:'normal',isNew:true,date:d,fr:{titre:'',texte:''},nl:{titre:'',texte:''},en:{titre:'',texte:''}});loadContentEditor();}
 function delAnnonce(i){DATA.annonces.splice(i,1);loadContentEditor();}
-function addEvent(){DATA.events.push({jour:'',mois:{fr:'',nl:'',en:''},isNew:true,heure:'',fr:{titre:'',desc:''},nl:{titre:'',desc:''},en:{titre:'',desc:''}});loadContentEditor();}
+function addEvent(){DATA.events.push({date:'',jour:'',mois:{fr:'',nl:'',en:''},isNew:true,heure:'',fr:{titre:'',desc:''},nl:{titre:'',desc:''},en:{titre:'',desc:''}});loadContentEditor();}
 function delEvent(i){DATA.events.splice(i,1);loadContentEditor();}
 
 /* ═══════════════════════════════════════════════════════
@@ -2174,7 +2190,7 @@ function saveAll(){
       });
     } else if(selTab.type==='evenements'){
       DATA.events=DATA.events.map((_,i)=>{
-        const obj={jour:document.getElementById(`ej-${i}`)?.value.trim()||'',heure:document.getElementById(`eh-${i}`)?.value.trim()||'',isNew:document.getElementById(`enew-${i}`)?.checked||false,
+        const obj={date:document.getElementById(`edate-${i}`)?.value||'',jour:document.getElementById(`ej-${i}`)?.value.trim()||'',heure:document.getElementById(`eh-${i}`)?.value.trim()||'',isNew:document.getElementById(`enew-${i}`)?.checked||false,
           mois:{fr:document.getElementById(`em-${i}-fr`)?.value.trim()||'',nl:document.getElementById(`em-${i}-nl`)?.value.trim()||'',en:document.getElementById(`em-${i}-en`)?.value.trim()||''}};
         ['fr','nl','en'].forEach(lg=>{obj[lg]={titre:document.getElementById(`et-${i}-${lg}`)?.value.trim()||'',desc:document.getElementById(`ed-${i}-${lg}`)?.value.trim()||''};});
         if(DATA.waUrl&&document.getElementById(`wa-notify-ev-${i}`)?.checked) _waToSend.events.push(obj);

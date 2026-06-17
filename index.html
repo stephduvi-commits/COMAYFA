@@ -1013,9 +1013,15 @@ function buildAnnonces(){
   }).join('')+`</div>`;
 }
 
+function eventVisible(e){
+  if(!e.date) return true;
+  return e.date >= new Date().toISOString().split('T')[0];
+}
+
 function buildEvents(){
-  if(!DATA.events.length) return `<p style="color:var(--muted)">${t('noContent')}</p>`;
-  return `<div class="events-list">`+DATA.events.map(e=>{
+  const visible=DATA.events.filter(eventVisible);
+  if(!visible.length) return `<p style="color:var(--muted)">${t('noContent')}</p>`;
+  return `<div class="events-list">`+visible.map(e=>{
     const d2=e[LANG]||e.fr||{};
     const newDot=e.isNew?'<span class="new-dot" title="Nouveau"></span>':'';
     return `<div class="event-card">
@@ -1152,7 +1158,7 @@ function renderNavGrid(){
     let badge = '';
     const newLabel = LANG==='nl'?'Nieuw':LANG==='en'?'New':'Nouveau';
     if(tab.id==='annonces'   && DATA.annonces.some(a=>a.isNew)) badge=`<span class="nav-card-badge">${newLabel}</span>`;
-    if(tab.id==='evenements' && DATA.events.some(e=>e.isNew))   badge=`<span class="nav-card-badge">${newLabel}</span>`;
+    if(tab.id==='evenements' && DATA.events.filter(eventVisible).some(e=>e.isNew)) badge=`<span class="nav-card-badge">${newLabel}</span>`;
 
     return `<div class="nav-card${isRed?' red-card':''}${isFull?' full':''}" onclick="openContent('${tab.id}')">
       ${badge}

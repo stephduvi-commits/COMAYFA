@@ -1190,22 +1190,25 @@ function renderLibreContent(txt){
   if(!txt) return '';
   // Contenu TipTap (HTML) vs texte brut (legacy)
   if(/<[a-z][^>]*>/i.test(txt)){
-    // HTML : ajouter target=_blank aux liens existants
-    return txt.replace(/<a\b(?![^>]*\btarget\b)/gi,
-      '<a target="_blank" rel="noopener noreferrer" ');
+    return txt.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
   }
-  // Texte brut : échapper, conserver les sauts de ligne, auto-lier URLs, emails, tél.
-  const safe = txt
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return '<div style="white-space:pre-wrap">' +
-    safe
-      .replace(/(https?:\/\/[^\s]+)/g,
-        u=>`<a class="libre-link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`)
-      .replace(/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b/g,
-        e=>`<a class="libre-mail" href="mailto:${e}">${e}</a>`)
-      .replace(/(\+?[\d][\d\s().\-]{6,}[\d])/g,
-        p=>`<a class="libre-tel" href="tel:${p.replace(/\s/g,'')}">${p}</a>`) +
-    '</div>';
+  // Texte brut : passage unique pour éviter que les remplacements corrompent le HTML généré
+  const RE = /(https?:\/\/[^\s]+)|([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})|(\+?[\d][\d\s().\-]{4,15}[\d])\b/g;
+  let result='', last=0, m;
+  while((m=RE.exec(txt))!==null){
+    // Texte brut entre les correspondances (échappé)
+    result+=txt.slice(last,m.index).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const [full,url,email,tel]=m;
+    if(url)   result+=`<a class="libre-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    else if(email) result+=`<a class="libre-mail" href="mailto:${email}">${email}</a>`;
+    else if(tel){
+      const num=tel.replace(/[\s().\-]/g,'');
+      result+=`<a class="libre-tel" href="tel:${num}">${tel}</a>`;
+    }
+    last=m.index+full.length;
+  }
+  result+=txt.slice(last).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div style="white-space:pre-wrap">${result}</div>`;
 }
 
 function openContent(tabId){

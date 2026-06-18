@@ -1706,14 +1706,14 @@ function buildAdminContacts(){
       </div>
       <label>Téléphone</label><input type="tel" id="ct-${i}" value="${escVal(c.tel)}">
       <div class="lang-tabs">
-        <button class="lang-tab-btn active" onclick="switchLangTab('rc',${i},'role',this)">🇫🇷 FR</button>
-        <button class="lang-tab-btn" onclick="switchLangTab('rc',${i},'role',this)">🇧🇪 NL</button>
-        <button class="lang-tab-btn" onclick="switchLangTab('rc',${i},'role',this)">🇬🇧 EN</button>
+        <button class="lang-tab-btn active" onclick="switchLangTab('rc','fr',${i},this)">🇫🇷 FR</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('rc','nl',${i},this)">🇧🇪 NL</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('rc','en',${i},this)">🇬🇧 EN</button>
       </div>
-      <div class="lang-fields" id="lf-rc-${i}-role">
-        <div class="active"><label>Rôle FR</label><input type="text" id="cr-${i}-fr" value="${escVal(roleObj.fr||'')}"></div>
-        <div><label>Rôle NL</label><input type="text" id="cr-${i}-nl" value="${escVal(roleObj.nl||'')}"></div>
-        <div><label>Rôle EN</label><input type="text" id="cr-${i}-en" value="${escVal(roleObj.en||'')}"></div>
+      <div class="lang-fields" id="lf-rc-${i}">
+        <div class="active" id="lf-rc-${i}-fr"><label>Rôle FR</label><input type="text" id="cr-${i}-fr" value="${escVal(roleObj.fr||'')}"></div>
+        <div id="lf-rc-${i}-nl"><label>Rôle NL</label><input type="text" id="cr-${i}-nl" value="${escVal(roleObj.nl||'')}"></div>
+        <div id="lf-rc-${i}-en"><label>Rôle EN</label><input type="text" id="cr-${i}-en" value="${escVal(roleObj.en||'')}"></div>
       </div></div>`;
   });
   return html+`</div>`;

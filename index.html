@@ -1186,29 +1186,39 @@ function renderNavGrid(){
   }).join('');
 }
 
-function renderLibreContent(txt){
-  if(!txt) return '';
-  // Contenu TipTap (HTML) vs texte brut (legacy)
-  if(/<[a-z][^>]*>/i.test(txt)){
-    return txt.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
-  }
-  // Texte brut : passage unique pour éviter que les remplacements corrompent le HTML généré
-  const RE = /(https?:\/\/[^\s]+)|([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})|(\+?[\d][\d\s().\-]{4,15}[\d])\b/g;
-  let result='', last=0, m;
-  while((m=RE.exec(txt))!==null){
-    // Texte brut entre les correspondances (échappé)
-    result+=txt.slice(last,m.index).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const [full,url,email,tel]=m;
-    if(url)   result+=`<a class="libre-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-    else if(email) result+=`<a class="libre-mail" href="mailto:${email}">${email}</a>`;
-    else if(tel){
-      const num=tel.replace(/[\s().\-]/g,'');
-      result+=`<a class="libre-tel" href="tel:${num}">${tel}</a>`;
-    }
+function _autoLink(raw){
+  // Passe unique : URL, email, téléphone sur du texte déjà échappé
+  const RE=/(https?:\/\/[^\s<&]+)|([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})|(\+?[\d][\d\s().\-]{4,15}[\d])\b/g;
+  let out='',last=0,m;
+  while((m=RE.exec(raw))!==null){
+    out+=raw.slice(last,m.index);
+    const[full,url,email,tel]=m;
+    if(url)   out+=`<a class="libre-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    else if(email) out+=`<a class="libre-mail" href="mailto:${email}">${email}</a>`;
+    else if(tel){const n=tel.replace(/[\s().\-]/g,'');out+=`<a class="libre-tel" href="tel:${n}">${tel}</a>`;}
     last=m.index+full.length;
   }
-  result+=txt.slice(last).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return `<div style="white-space:pre-wrap">${result}</div>`;
+  return out+raw.slice(last);
+}
+
+function renderLibreContent(txt){
+  if(!txt) return '';
+  const isHTML=/<[a-z][^>]*>/i.test(txt);
+  if(isHTML){
+    // TipTap HTML : ajouter target=_blank et auto-lier les URLs nues dans le texte
+    let html=txt.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
+    // Auto-lier les URLs en texte brut entre les balises (pas dans les attributs)
+    html=html.replace(/(>[^<]*?<)/g, seg=>seg.replace(/(https?:\/\/[^\s<&"']+)/g,
+      u=>`<a class="libre-link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`));
+    return html;
+  }
+  // Texte brut : convertir en paragraphes propres (double \n = nouveau §, simple \n = <br>)
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const paras=txt.split(/\n{2,}/);
+  return paras.map(para=>{
+    const lines=para.split('\n').map(l=>_autoLink(esc(l)));
+    return `<p>${lines.join('<br>')}</p>`;
+  }).join('');
 }
 
 function openContent(tabId){

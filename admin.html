@@ -157,16 +157,21 @@ main{padding:12px 12px 100px;}
 /* Éditeur TipTap */
 .tiptap-wrap{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--white);margin-bottom:10px;}
 .tiptap-toolbar{display:flex;gap:2px;padding:6px 8px;background:#f8f9fa;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
-.tiptap-toolbar button{background:none;border:1px solid transparent;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:13px;font-family:inherit;color:var(--text);line-height:1.4;transition:background .15s;}
+.tiptap-toolbar button{background:none;border:1px solid transparent;border-radius:5px;padding:6px 12px;cursor:pointer;font-size:14px;font-family:inherit;color:var(--text);line-height:1.4;transition:background .15s;min-height:36px;}
 .tiptap-toolbar button:hover{background:white;border-color:var(--border);}
 .tiptap-toolbar button.is-active{background:var(--accent);color:white;border-color:var(--accent);}
-.tiptap-toolbar .tsep{width:1px;height:18px;background:var(--border);margin:0 4px;align-self:center;}
-.tiptap-editor{min-height:160px;padding:10px 12px;font-size:14px;line-height:1.65;cursor:text;}
-.tiptap-editor .ProseMirror{outline:none;min-height:140px;}
-.tiptap-editor .ProseMirror p{margin:0 0 6px;}
-.tiptap-editor .ProseMirror ul,.tiptap-editor .ProseMirror ol{padding-left:20px;margin:0 0 6px;}
+.tiptap-toolbar .tsep{width:1px;height:20px;background:var(--border);margin:0 4px;align-self:center;}
+.tiptap-editor{min-height:200px;padding:12px 14px;font-size:15px;line-height:1.7;cursor:text;}
+.tiptap-editor .ProseMirror{outline:none;min-height:180px;}
+.tiptap-editor .ProseMirror p{margin:0 0 8px;}
+.tiptap-editor .ProseMirror ul,.tiptap-editor .ProseMirror ol{padding-left:20px;margin:0 0 8px;}
 .tiptap-editor .ProseMirror a{color:var(--accent-dk);text-decoration:underline;}
 .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none;float:left;height:0;}
+@media(min-width:768px){
+  .tiptap-toolbar button{padding:4px 10px;font-size:13px;min-height:30px;}
+  .tiptap-editor{min-height:320px;font-size:14px;}
+  .tiptap-editor .ProseMirror{min-height:300px;}
+}
 
 .last-update{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 0;}
 
@@ -222,7 +227,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .lang-tab-btn.active{border-color:var(--accent);background:var(--accent);color:white;}
 .lang-fields > div{display:none;}.lang-fields > div.active{display:block;}
 /* Onglets config */
-.tab-config-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.tab-config-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.tab-config-row{display:flex;align-items:center;gap:10px;width:100%;}
+.tab-edit-form{display:none;width:100%;padding:10px 0 2px;border-top:1px solid var(--border);margin-top:4px;}
+.tab-edit-form.open{display:block;}
+.tab-edit-grid{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:6px;align-items:end;}
+.tab-edit-grid label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;}
+.tab-edit-grid input{width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg);}
+.tab-edit-grid input:focus{outline:none;border-color:var(--accent);}
+.btn-edit-tab{background:none;border:1.5px solid var(--border);border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;}
+.btn-edit-tab:hover,.btn-edit-tab.active{background:var(--accent-bg);border-color:var(--accent);}
 .tab-toggle{position:relative;width:44px;height:26px;flex-shrink:0;}
 .tab-toggle input{opacity:0;width:0;height:0;position:absolute;}
 .tab-toggle-track{position:absolute;inset:0;background:var(--border);border-radius:13px;transition:background .2s;cursor:pointer;}
@@ -1489,32 +1503,77 @@ function loadTabsConfig(){
   if(!el){ console.error('❌ #tabs-config-list introuvable dans loadTabsConfig'); return; }
   el.innerHTML = DATA.tabs.map((t,i)=>`
     <div class="tab-config-item" data-idx="${i}" id="tci-${i}">
-      <div class="drag-handle" title="Glisser pour réordonner">⠿</div>
-      <div class="move-btns">
-        <button class="move-btn" onclick="moveTab(${i},-1)" ${i===0?'disabled':''} title="Monter">▲</button>
-        <button class="move-btn" onclick="moveTab(${i},+1)" ${i===DATA.tabs.length-1?'disabled':''} title="Descendre">▼</button>
+      <div class="tab-config-row">
+        <div class="drag-handle" title="Glisser pour réordonner">⠿</div>
+        <div class="move-btns">
+          <button class="move-btn" onclick="moveTab(${i},-1)" ${i===0?'disabled':''} title="Monter">▲</button>
+          <button class="move-btn" onclick="moveTab(${i},+1)" ${i===DATA.tabs.length-1?'disabled':''} title="Descendre">▼</button>
+        </div>
+        <label class="tab-toggle" title="${t.active?'Visible':'Masqué'}">
+          <input type="checkbox" id="tab-active-${i}" ${t.active?'checked':''}>
+          <div class="tab-toggle-track"></div>
+        </label>
+        <div class="tab-config-info">
+          <div class="tc-name">${t.icon} ${esc(tl(t.nom))}</div>
+          <div class="tc-type" style="font-size:10px;color:var(--muted)">${t.type} · ${t.active?'Visible':'Masqué'}</div>
+        </div>
+        <button class="btn-edit-tab" onclick="toggleTabEdit(${i})" id="btn-edit-tab-${i}" title="Modifier nom et icône">✏️</button>
+        ${i>=5?`<button class="btn btn-danger" onclick="deleteTab(${i})" style="position:static;flex-shrink:0;min-height:32px;padding:6px 10px">✕</button>`:''}
       </div>
-      <label class="tab-toggle" title="${t.active?'Visible':'Masqué'}">
-        <input type="checkbox" id="tab-active-${i}" ${t.active?'checked':''}>
-        <div class="tab-toggle-track"></div>
-      </label>
-      <div class="tab-config-info">
-        <div class="tc-name">${t.icon} ${esc(tl(t.nom))}</div>
-        <div class="tc-type" style="font-size:10px;color:var(--muted)">${t.type} · ${t.active?'Visible':'Masqué'}</div>
+      <div class="tab-edit-form" id="tab-edit-form-${i}">
+        <div class="tab-edit-grid">
+          <div>
+            <label>Icône</label>
+            <input type="text" id="tab-icon-${i}" value="${escVal(t.icon||'')}" maxlength="4" placeholder="🏠">
+          </div>
+          <div>
+            <label>Nom FR</label>
+            <input type="text" id="tab-nom-fr-${i}" value="${escVal((t.nom||{}).fr||'')}" placeholder="Nom français">
+          </div>
+          <div>
+            <label>Nom NL</label>
+            <input type="text" id="tab-nom-nl-${i}" value="${escVal((t.nom||{}).nl||'')}" placeholder="Nederlandse naam">
+          </div>
+          <div>
+            <label>Nom EN</label>
+            <input type="text" id="tab-nom-en-${i}" value="${escVal((t.nom||{}).en||'')}" placeholder="English name">
+          </div>
+        </div>
       </div>
-      ${i>=5?`<button class="btn btn-danger" onclick="deleteTab(${i})" style="position:static;flex-shrink:0;min-height:32px;padding:6px 10px">✕</button>`:''}
     </div>`).join('');
   
   // Sauvegarder l'état des checkboxes dans DATA avant init Sortable
   initSortableTabs();
 }
 
-function moveTab(idx, dir){
-  // Sauvegarder checkboxes
-  DATA.tabs.forEach((_,i)=>{
+function toggleTabEdit(i){
+  const form=document.getElementById(`tab-edit-form-${i}`);
+  const btn=document.getElementById(`btn-edit-tab-${i}`);
+  if(!form) return;
+  const open=form.classList.toggle('open');
+  if(btn) btn.classList.toggle('active',open);
+}
+
+function _saveTabFormValues(){
+  DATA.tabs.forEach((t,i)=>{
     const cb=document.getElementById(`tab-active-${i}`);
-    if(cb) DATA.tabs[i].active=cb.checked;
+    if(cb) t.active=cb.checked;
+    const icon=document.getElementById(`tab-icon-${i}`);
+    if(icon) t.icon=icon.value.trim()||t.icon;
+    const fr=document.getElementById(`tab-nom-fr-${i}`);
+    const nl=document.getElementById(`tab-nom-nl-${i}`);
+    const en=document.getElementById(`tab-nom-en-${i}`);
+    if(fr||nl||en){
+      t.nom=t.nom||{};
+      if(fr) t.nom.fr=fr.value.trim()||t.nom.fr;
+      if(nl) t.nom.nl=nl.value.trim()||t.nom.nl;
+      if(en) t.nom.en=en.value.trim()||t.nom.en;
+    }
   });
+}
+
+function moveTab(idx, dir){
+  _saveTabFormValues();
   const newIdx = idx + dir;
   if(newIdx < 0 || newIdx >= DATA.tabs.length) return;
   const tmp = DATA.tabs[idx];
@@ -1549,11 +1608,7 @@ function initSortableTabs(){
     dragClass: 'sortable-drag',
     forceFallback: false,
     onStart: function(evt){
-      // Sauvegarder les checkboxes AVANT le drag
-      DATA.tabs.forEach((_,i)=>{
-        const cb=document.getElementById(`tab-active-${i}`);
-        if(cb) DATA.tabs[i].active=cb.checked;
-      });
+      _saveTabFormValues();
     },
     onEnd: function(evt){
       const from = evt.oldIndex;
@@ -2095,6 +2150,11 @@ function initLibreTipTap(tabId){
     const hidden=document.getElementById(`libre-${lang}-${tabId}`);
     if(!container || !hidden || container.__tiptap) return;
     const editorId=`libre-${lang}-${tabId}`;
+    // Si le contenu est du texte brut (pas HTML), convertir \n en balises pour TipTap
+    const rawContent = hidden.value || '';
+    const isHTML = /<[a-z][^>]*>/i.test(rawContent);
+    const tiptapContent = isHTML ? rawContent : rawContent
+      .split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,'<br>').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`).join('');
     const editor=new Editor({
       element: container,
       extensions: [
@@ -2103,7 +2163,7 @@ function initLibreTipTap(tabId){
         Link.configure({ openOnClick: false }),
         Placeholder.configure({ placeholder: 'Rédigez votre contenu ici…' }),
       ],
-      content: hidden.value || '',
+      content: tiptapContent,
       onUpdate: ({ editor }) => { hidden.value=editor.getHTML(); },
       onSelectionUpdate: ({ editor }) => { updateTipTapToolbar(editorId, editor); },
     });
@@ -2166,8 +2226,8 @@ function saveAll(){
   DATA.smsLabelNl=document.getElementById('cfg-sms-label-nl').value.trim();
   DATA.smsLabelEn=document.getElementById('cfg-sms-label-en').value.trim();
   DATA.hideNotif=document.getElementById('cfg-hide-notif').checked;
-  // Onglets actifs
-  DATA.tabs.forEach((t,i)=>{const cb=document.getElementById(`tab-active-${i}`);if(cb) t.active=cb.checked;});
+  // Onglets : actifs + noms + icônes
+  _saveTabFormValues();
   // Contenu
   const selTabId=document.getElementById('content-tab-select').value;
   const selTab=DATA.tabs.find(t=>t.id===selTabId);

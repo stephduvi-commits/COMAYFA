@@ -241,8 +241,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .free-content ul,.free-content ol{padding-left:20px;margin:0 0 8px;}
 .free-content strong{font-weight:700;}
 .free-content em{font-style:italic;}
-.free-content a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;word-break:break-all;}
-.free-content a:active{opacity:.7;}
+.free-content a,.libre-link,.libre-mail,.libre-tel{font-weight:600;text-decoration:underline;text-underline-offset:3px;word-break:break-all;}
+.free-content a,.libre-link{color:var(--accent);}
+.libre-mail{color:#2563EB;}
+.libre-tel{color:var(--green);}
+.free-content a:active,.libre-link:active,.libre-mail:active,.libre-tel:active{opacity:.7;}
 
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
@@ -929,9 +932,8 @@ function renderTabContent(tab){
   else if(tab.type==='evenements') el.innerHTML=buildEvents();
   else if(tab.type==='libre'){
     const cc=DATA.customContent[tab.id] || {};
-    const txt=cc ? tl(cc) : '';
-    el.innerHTML = txt ? `<div class="free-content">${txt}</div>` : `<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
-    el.querySelectorAll('.free-content a[href]').forEach(a=>{a.target='_blank';a.rel='noopener noreferrer';});
+    const txt=tl(cc)||'';
+    el.innerHTML = txt ? `<div class="free-content">${renderLibreContent(txt)}</div>` : `<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
   }
   else if(tab.type==='plan'){
     const cc=DATA.customContent[tab.id] || {};
@@ -1184,6 +1186,28 @@ function renderNavGrid(){
   }).join('');
 }
 
+function renderLibreContent(txt){
+  if(!txt) return '';
+  // Contenu TipTap (HTML) vs texte brut (legacy)
+  if(/<[a-z][^>]*>/i.test(txt)){
+    // HTML : ajouter target=_blank aux liens existants
+    return txt.replace(/<a\b(?![^>]*\btarget\b)/gi,
+      '<a target="_blank" rel="noopener noreferrer" ');
+  }
+  // Texte brut : échapper, conserver les sauts de ligne, auto-lier URLs, emails, tél.
+  const safe = txt
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return '<div style="white-space:pre-wrap">' +
+    safe
+      .replace(/(https?:\/\/[^\s]+)/g,
+        u=>`<a class="libre-link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`)
+      .replace(/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b/g,
+        e=>`<a class="libre-mail" href="mailto:${e}">${e}</a>`)
+      .replace(/(\+?[\d][\d\s().\-]{6,}[\d])/g,
+        p=>`<a class="libre-tel" href="tel:${p.replace(/\s/g,'')}">${p}</a>`) +
+    '</div>';
+}
+
 function openContent(tabId){
   const tab = DATA.tabs.find(t=>t.id===tabId);
   if(!tab) return;
@@ -1209,11 +1233,8 @@ function openContent(tabId){
     const cc = DATA.customContent[tab.id] || {};
     const txt = tl(cc) || '';
     body.innerHTML = txt
-      ? `<div class="free-content">${txt}</div>`
+      ? `<div class="free-content">${renderLibreContent(txt)}</div>`
       : `<div class="empty-state">${t('noContent')}</div>`;
-    body.querySelectorAll('.free-content a[href]').forEach(a=>{
-      a.target='_blank'; a.rel='noopener noreferrer';
-    });
   }
   else if(tab.type==='plan'){
     const cc = DATA.customContent[tab.id] || {};

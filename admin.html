@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -2325,15 +2325,25 @@ function previewWaLink(){
 
 /* ── Envoi notification WhatsApp (3 langues) ── */
 function sendWaNotification(newEvents, newAnnonces){
+  // Unicode escapes avoid file-encoding corruption for emoji
+  const E={
+    urgent:'\u{1F6A8}',       // 🚨
+    info:'\u2139\uFE0F',         // info
+    normal:'\u{1F4E2}',       // 📢
+    cal:'\u{1F4C5}',          // 📅
+    fr:'\u{1F1EB}\u{1F1F7}', // 🇫🇷
+    nl:'\u{1F1E7}\u{1F1EA}', // 🇧🇪
+    en:'\u{1F1EC}\u{1F1E7}'  // 🇬🇧
+  };
   let blocks=[];
 
   newAnnonces.forEach(a=>{
-    const typeEmoji=a.type==='urgent'?'🚨':a.type==='info'?'ℹ️':'📢';
+    const typeEmoji=a.type==='urgent'?E.urgent:a.type==='info'?E.info:E.normal;
     const pfx=a.type==='urgent'?typeEmoji+' [URGENT] ':typeEmoji+' ';
     let b='';
-    if(a.fr?.titre) b+='*'+pfx+'🇫🇷 '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
-    if(a.nl?.titre) b+='*'+pfx+'🇧🇪 '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
-    if(a.en?.titre) b+='*'+pfx+'🇬🇧 '+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
+    if(a.fr?.titre) b+='*'+pfx+E.fr+' '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
+    if(a.nl?.titre) b+='*'+pfx+E.nl+' '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
+    if(a.en?.titre) b+='*'+pfx+E.en+' '+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
@@ -2342,10 +2352,10 @@ function sendWaNotification(newEvents, newAnnonces){
     const heure=ev.heure?' - '+ev.heure:'';
     const moisJoints=[ev.mois?.fr,ev.mois?.nl,ev.mois?.en].filter(Boolean).join(' / ');
     const dateLine=jour||moisJoints?(jour?jour+' ':'')+moisJoints+heure:'';
-    let b=dateLine?'📅 _'+dateLine+'_\n':'';
-    if(ev.fr?.titre) b+='*🇫🇷 '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
-    if(ev.nl?.titre) b+='*🇧🇪 '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
-    if(ev.en?.titre) b+='*🇬🇧 '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
+    let b=dateLine?E.cal+' _'+dateLine+'_\n':'';
+    if(ev.fr?.titre) b+='*'+E.fr+' '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
+    if(ev.nl?.titre) b+='*'+E.nl+' '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
+    if(ev.en?.titre) b+='*'+E.en+' '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 

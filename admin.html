@@ -2325,14 +2325,19 @@ function previewWaLink(){
 
 /* ── Envoi notification WhatsApp (3 langues) ── */
 function sendWaNotification(newEvents, newAnnonces){
+  const mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const E=mob?{
+    urgent:'\u{1F6A8}',fr:'\u{1F1EB}\u{1F1F7}',nl:'\u{1F1E7}\u{1F1EA}',en:'\u{1F1EC}\u{1F1E7}',
+    info:'ℹ️',normal:'\u{1F4E2}',cal:'\u{1F4C5}'
+  }:{urgent:'',fr:'[FR]',nl:'[NL]',en:'[EN]',info:'',normal:'',cal:''};
   let blocks=[];
 
   newAnnonces.forEach(a=>{
-    const pfx=a.type==='urgent'?'[URGENT] ':a.type==='info'?'[INFO] ':'';
+    const typePfx=a.type==='urgent'?(mob?E.urgent+' ':'')+'[URGENT] ':a.type==='info'?(mob?E.info+' ':'')+'[INFO] ':(mob?E.normal+' ':'');
     let b='';
-    if(a.fr?.titre) b+='*'+pfx+'[FR] '+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
-    if(a.nl?.titre) b+='*'+pfx+'[NL] '+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
-    if(a.en?.titre) b+='*'+pfx+'[EN] '+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
+    if(a.fr?.titre) b+='*'+typePfx+(mob?E.fr+' ':'[FR] ')+a.fr.titre+'*'+(a.fr.texte?'\n'+a.fr.texte:'')+'\n';
+    if(a.nl?.titre) b+='*'+typePfx+(mob?E.nl+' ':'[NL] ')+a.nl.titre+'*'+(a.nl.texte?'\n'+a.nl.texte:'')+'\n';
+    if(a.en?.titre) b+='*'+typePfx+(mob?E.en+' ':'[EN] ')+a.en.titre+'*'+(a.en.texte?'\n'+a.en.texte:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
@@ -2341,17 +2346,16 @@ function sendWaNotification(newEvents, newAnnonces){
     const heure=ev.heure?' - '+ev.heure:'';
     const moisJoints=[ev.mois?.fr,ev.mois?.nl,ev.mois?.en].filter(Boolean).join(' / ');
     const dateLine=jour||moisJoints?(jour?jour+' ':'')+moisJoints+heure:'';
-    let b=dateLine?'_'+dateLine+'_\n':'';
-    if(ev.fr?.titre) b+='*[FR] '+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
-    if(ev.nl?.titre) b+='*[NL] '+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
-    if(ev.en?.titre) b+='*[EN] '+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
+    let b=dateLine?(mob?E.cal+' ':'')+'_'+dateLine+'_\n':'';
+    if(ev.fr?.titre) b+='*'+(mob?E.fr+' ':'[FR] ')+ev.fr.titre+'*'+(ev.fr.desc?'\n'+ev.fr.desc:'')+'\n';
+    if(ev.nl?.titre) b+='*'+(mob?E.nl+' ':'[NL] ')+ev.nl.titre+'*'+(ev.nl.desc?'\n'+ev.nl.desc:'')+'\n';
+    if(ev.en?.titre) b+='*'+(mob?E.en+' ':'[EN] ')+ev.en.titre+'*'+(ev.en.desc?'\n'+ev.en.desc:'')+'\n';
     if(b) blocks.push(b.trim());
   });
 
   const msg='*'+DATA.titre+'*\n\n'+blocks.join('\n\n---\n\n');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 }
-
 /* ── Upload logo fichier local → base64 ── */
 function loadLogoFile(input){
   const file=input.files[0];

@@ -241,6 +241,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .free-content ul,.free-content ol{padding-left:20px;margin:0 0 8px;}
 .free-content strong{font-weight:700;}
 .free-content em{font-style:italic;}
+.free-content a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;word-break:break-all;}
+.free-content a:active{opacity:.7;}
 
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
@@ -929,6 +931,7 @@ function renderTabContent(tab){
     const cc=DATA.customContent[tab.id] || {};
     const txt=cc ? tl(cc) : '';
     el.innerHTML = txt ? `<div class="free-content">${txt}</div>` : `<p style="color:var(--muted);font-size:14px">${t('noContent')}</p>`;
+    el.querySelectorAll('.free-content a[href]').forEach(a=>{a.target='_blank';a.rel='noopener noreferrer';});
   }
   else if(tab.type==='plan'){
     const cc=DATA.customContent[tab.id] || {};
@@ -1208,6 +1211,9 @@ function openContent(tabId){
     body.innerHTML = txt
       ? `<div class="free-content">${txt}</div>`
       : `<div class="empty-state">${t('noContent')}</div>`;
+    body.querySelectorAll('.free-content a[href]').forEach(a=>{
+      a.target='_blank'; a.rel='noopener noreferrer';
+    });
   }
   else if(tab.type==='plan'){
     const cc = DATA.customContent[tab.id] || {};
@@ -1231,13 +1237,27 @@ function openContent(tabId){
   document.getElementById('home-screen').style.display='none';
   cs.style.display='block';
   window.scrollTo(0,0);
+  // Pousse un état pour que le bouton retour smartphone revienne au menu
+  history.pushState({panel:'content', tabId}, '');
 }
 
-function goHome(){
+function _doGoHome(){
   document.getElementById('content-screen').style.display='none';
   document.getElementById('home-screen').style.display='block';
   window.scrollTo(0,0);
 }
+
+function goHome(){
+  // Si l'historique contient notre état, on le retire proprement
+  if(history.state && history.state.panel==='content') history.back();
+  else _doGoHome();
+}
+
+// Bouton retour smartphone/navigateur
+window.addEventListener('popstate', function(){
+  const cs=document.getElementById('content-screen');
+  if(cs && cs.style.display!=='none') _doGoHome();
+});
 
 function openPlanModal(src){
   const m=document.getElementById('plan-modal');

@@ -245,7 +245,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tab-toggle input:checked+.tab-toggle-track::after{transform:translateX(18px);}
 .tab-config-info{flex:1;min-width:0;}
 .tab-config-info .tc-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:5px;}
-.tab-logo-grid{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px;}
+.tab-logo-grid{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px;max-height:210px;overflow-y:auto;}
 .tab-logo-btn{width:40px;height:40px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:5px;transition:border-color .15s,background .15s;}
 .tab-logo-btn svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .tab-logo-btn:hover{border-color:var(--accent);background:var(--white);}
@@ -876,45 +876,107 @@ const SVGS={
   bell:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
   calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   file:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
-  wifi:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>`,
-  vip:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 18 6 6 10 14 12 9 14 14 18 6 22 18"/><line x1="2" y1="21" x2="22" y2="21"/></svg>`,
-  map:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`,
-  link:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
-  bed:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20v-8h20v8"/><path d="M2 12V7a2 2 0 012-2h4v5"/><rect x="12" y="7" width="8" height="5" rx="1"/></svg>`,
-  key:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5L17 6l3 3-1.5 1.5"/></svg>`,
-  info:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  coffee:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
-  parking:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17V7h4a3 3 0 010 6H9"/></svg>`,
-  shower:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>`,
-  shield:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-  star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-  home:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-  exit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
-  sport:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
 };
 const TYPE_SVG={regles:'clipboard',contacts:'phone',horaires:'clock',annonces:'bell',evenements:'calendar',libre:'file'};
+const S=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">`;
+const SE=`</svg>`;
+const LOGO_SVGS={
+  annonces:    S+`<path d="M12 4.5c-2.5 0-4.5 2-4.5 4.5v3.2c0 .5-.2 1-.5 1.4l-1 1.2c-.5.6-.1 1.6.7 1.6h11.6c.8 0 1.2-1 .7-1.6l-1-1.2c-.3-.4-.5-.9-.5-1.4V9c0-2.5-2-4.5-4.5-4.5Z"/><path d="M10 18.5a2 2 0 0 0 4 0"/>`+SE,
+  bagage:      S+`<rect x="6" y="8.5" width="12" height="11" rx="1.8"/><path d="M9.5 8.5V6.3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V8.5"/><line x1="6" y1="13" x2="18" y2="13"/>`+SE,
+  bagagerie:   S+`<rect x="6" y="8.5" width="12" height="10.5" rx="1.5"/><path d="M9.5 8.5V6.3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V8.5"/><line x1="9.5" y1="11.5" x2="9.5" y2="16"/><line x1="14.5" y1="11.5" x2="14.5" y2="16"/>`+SE,
+  bellservice: S+`<path d="M4.5 17.2a7.5 7.5 0 0 1 15 0Z"/><line x1="3.5" y1="17.2" x2="20.5" y2="17.2"/><line x1="12" y1="6.2" x2="12" y2="4.5"/>`+SE,
+  blanchisserie:S+`<rect x="4.5" y="4.5" width="15" height="15.5" rx="1.5"/><circle cx="6.8" cy="6.8" r="0.5" fill="#DB8A3C" stroke="none"/><circle cx="9" cy="6.8" r="0.5" fill="#DB8A3C" stroke="none"/><rect x="14.5" y="6" width="4" height="2.4" rx="0.6"/><circle cx="12" cy="14" r="4.4"/><circle cx="12" cy="14" r="2.4"/>`+SE,
+  checkinout:  S+`<path d="M13.5 4.5H7a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6.5"/><line x1="10.5" y1="12" x2="20" y2="12"/><path d="M17 8.7 20 12l-3 3.3"/>`+SE,
+  checkout:    S+`<path d="M13 4.5H6.5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1H13"/><line x1="10" y1="12" x2="20" y2="12"/><path d="M16.5 8.5 20 12l-3.5 3.5"/>`+SE,
+  cleaning:    S+`<path d="M7 5.5v3.7"/><path d="M4.5 12.2c0-1.7.9-3.5 2.5-3.5s2.5 1.8 2.5 3.5Z"/><rect x="4.3" y="12.2" width="5.4" height="6.3" rx="1"/><path d="M17 5.5v7.5"/><path d="M14.7 12.5h4.6v2.3a2.3 2.3 0 0 1-4.6 0Z"/>`+SE,
+  cleroom:     S+`<circle cx="15" cy="7.5" r="3.4"/><circle cx="15" cy="7.5" r="1.1" fill="#DB8A3C" stroke="none"/><path d="m12.5 10-6.8 6.8a1 1 0 0 0 0 1.4l1.1 1.1a1 1 0 0 0 1.4 0L15 12.5"/>`+SE,
+  cles:        S+`<rect x="3.5" y="6" width="14.5" height="9.5" rx="1.8"/><circle cx="7.3" cy="9.7" r="1.4"/><line x1="10.5" y1="9.7" x2="15" y2="9.7"/><line x1="10.5" y1="12" x2="13.2" y2="12"/><rect x="17.8" y="10" width="2.3" height="4"/>`+SE,
+  climatisation:S+`<line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="6.3" y1="6.3" x2="17.7" y2="17.7"/><line x1="17.7" y1="6.3" x2="6.3" y2="17.7"/><circle cx="12" cy="12" r="2.1" fill="#FDEAD6"/>`+SE,
+  colis:       S+`<path d="M12 3.8 19.5 8v8L12 20.2 4.5 16V8L12 3.8Z"/><path d="M4.7 8 12 12.2 19.3 8"/><line x1="12" y1="12.2" x2="12" y2="20.2"/>`+SE,
+  confirmationcheck:S+`<circle cx="12" cy="12" r="8.3"/><path d="M8 12.3 10.5 14.8 16 9.3"/>`+SE,
+  consignes:   S+`<rect x="6" y="4.5" width="12" height="16" rx="1.5"/><path d="M9 4.5V4a3 3 0 0 1 6 0v.5"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13.2" x2="15" y2="13.2"/><line x1="9" y1="16.4" x2="13" y2="16.4"/>`+SE,
+  contacts:    S+`<circle cx="16.5" cy="7.5" r="4.3"/><text x="16.5" y="9" font-size="4.2" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="700">24</text><path d="M6.6 10.8c1.2 2.4 3.2 4.4 5.6 5.6l1.9-1.9c.3-.3.7-.4 1.1-.2.6.2 1.2.4 1.8.5"/><path d="M4 5.6c0-.6.4-1 1-1h3.1c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.2 1.1l-1.9 1.9"/><path d="M4 5.6C4 13.4 10.6 20 18.4 20"/>`+SE,
+  doorhandle:  S+`<rect x="5" y="4.5" width="14" height="15" rx="1.5"/><path d="M9 10.5h6"/><path d="M9 13.5h3.5"/><circle cx="15" cy="13.5" r="0.6" fill="#DB8A3C" stroke="none"/>`+SE,
+  doublebed:   S+`<path d="M13.5 4.5H8.5a1.5 1.5 0 0 0-1.5 1.5v6h10v-6a1.5 1.5 0 0 0-1.5-1.5Z"/><path d="M4.5 19.5v-4a1.5 1.5 0 0 1 1.5-1.5h12a1.5 1.5 0 0 1 1.5 1.5v4"/><line x1="4.5" y1="19.5" x2="19.5" y2="19.5"/><line x1="4.5" y1="17" x2="19.5" y2="17"/>`+SE,
+  evenements:  S+`<rect x="4.5" y="5.5" width="15" height="14" rx="1.8"/><path d="M8 4v3"/><path d="M16 4v3"/><line x1="4.5" y1="9.5" x2="19.5" y2="9.5"/><rect x="7.3" y="12" width="2.1" height="2.1"/><path d="m13 12.5 1 1 2-2" stroke-width="1.1"/><rect x="15.6" y="12" width="2.1" height="2.1"/>`+SE,
+  faq:         S+`<circle cx="12" cy="12" r="8.3"/><path d="M9.6 9.8a2.4 2.4 0 1 1 3.6 2.1c-.8.5-1.2.9-1.2 1.9"/><circle cx="12" cy="16.3" r="0.6" fill="#DB8A3C" stroke="none"/>`+SE,
+  fitness:     S+`<rect x="3" y="10.5" width="2.6" height="5" rx="0.8"/><rect x="18.4" y="10.5" width="2.6" height="5" rx="0.8"/><rect x="5.6" y="9" width="1.8" height="8"/><rect x="16.6" y="9" width="1.8" height="8"/><line x1="7.4" y1="13" x2="16.6" y2="13"/>`+SE,
+  garde:       S+`<path d="M9 6.5c0 1.5 1.3 2.7 3 2.7s3-1.2 3-2.7"/><path d="M12 4.3c1.4 0 2.5.6 3 1.7-.4-.2-1.9-.4-3-.4s-2.6.2-3 .4c.5-1.1 1.6-1.7 3-1.7Z"/><rect x="9.3" y="11.5" width="5.4" height="7.5" rx="1.3"/>`+SE,
+  horaires:    S+`<rect x="5" y="6.5" width="14" height="14" rx="2"/><line x1="8.5" y1="4" x2="8.5" y2="8"/><line x1="15.5" y1="4" x2="15.5" y2="8"/><rect x="7.5" y="11" width="2" height="2"/><rect x="11" y="11" width="2" height="2"/><path d="m14.5 11.7 1 1 2-2" stroke-width="1.1"/><rect x="7.5" y="15" width="2" height="2"/><rect x="11" y="15" width="2" height="2"/><rect x="14.5" y="15" width="2" height="2"/>`+SE,
+  hotelmap:    S+`<path d="M12 21c-3.5-3.6-6-6.7-6-9.8A6 6 0 0 1 18 11.2c0 3.1-2.5 6.2-6 9.8Z"/><text x="12" y="13" font-size="5.4" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800">H</text>`+SE,
+  incendie:    S+`<path d="M12 3.5c1 2 .3 3.2-.6 4.4-1.1 1.4-2.1 2.7-2.1 4.6a3.9 3.9 0 0 0 3.9 3.9c1 0 1.7-.4 2.2-1-.1 1.6-1.3 2.7-2.9 2.9 2.9-.1 5.2-2.2 5.2-5.4 0-2-1-3.3-2-4.5.2 1.1-.1 1.9-.9 2.5.3-2.9-1-5.3-2.8-6.4Z"/>`+SE,
+  liens:       S+`<path d="M10 14 14 10"/><path d="M11.3 8.3 12.8 6.8a2.6 2.6 0 0 1 3.7 3.7l-1.5 1.5"/><path d="M12.7 15.7 11.2 17.2a2.6 2.6 0 0 1-3.7-3.7l1.5-1.5"/>`+SE,
+  maintenance: S+`<path d="M14.7 9.8a3.6 3.6 0 0 1-4.6 4.6l-4.9 4.9a1.4 1.4 0 0 1-2-2l4.9-4.9a3.6 3.6 0 0 1 4.6-4.6l-2.6 2.6 1.4 1.4 2.6-2.6Z"/>`+SE,
+  medecin:     S+`<circle cx="12" cy="7" r="2.6"/><path d="M6.5 19.5V15a1.5 1.5 0 0 1 1.5-1.5h1.5"/><path d="M17.5 19.5V15a1.5 1.5 0 0 0-1.5-1.5h-1.5"/><rect x="7.5" y="13.5" width="9" height="6" rx="1.2"/><line x1="12" y1="15.3" x2="12" y2="17.7"/><line x1="10.8" y1="16.5" x2="13.2" y2="16.5"/>`+SE,
+  menage:      S+`<path d="M7 6.5V4.5"/><path d="M5 10c0-2.2.9-3.5 2-3.5s2 1.3 2 3.5Z"/><rect x="4.5" y="10" width="5" height="7.5" rx="0.8"/><line x1="4.5" y1="13.5" x2="9.5" y2="13.5"/><line x1="17" y1="4" x2="17" y2="15"/><path d="M14.5 15h5v1.5a2.5 2.5 0 0 1-5 0Z"/>`+SE,
+  meteo:       S+`<circle cx="9.3" cy="9.3" r="3.3"/><line x1="9.3" y1="3.7" x2="9.3" y2="5"/><line x1="9.3" y1="13.6" x2="9.3" y2="14.9"/><line x1="3.7" y1="9.3" x2="5" y2="9.3"/><line x1="13.6" y1="9.3" x2="14.9" y2="9.3"/><path d="M9.8 16.5h6.7a2.8 2.8 0 0 0 .6-5.5 4 4 0 0 0-7.5-1.7"/>`+SE,
+  navette:     S+`<path d="M4.5 15V8.8a1.2 1.2 0 0 1 1.2-1.2h9.6l3.7 4v3.4"/><line x1="4.5" y1="15" x2="19" y2="15"/><line x1="9.5" y1="7.6" x2="9.5" y2="11.6"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>`+SE,
+  nosmoking:   S+`<circle cx="12" cy="12" r="8.2"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/><line x1="8" y1="12" x2="16" y2="12"/><path d="M13.5 12v-.8a1.5 1.5 0 0 0-1.5-1.5h-.4"/>`+SE,
+  parking:     S+`<circle cx="12" cy="12" r="8.2"/><path d="M10 16.5V7.5h2.6a2.6 2.6 0 1 1 0 5.2H10"/>`+SE,
+  petitdejeuner:S+`<path d="M6 8.5h9v4.6a4.5 4.5 0 0 1-9 0V8.5Z"/><path d="M15 9.5h1.3a1.8 1.8 0 0 1 0 3.6H15"/><line x1="6.6" y1="19.5" x2="14.4" y2="19.5"/>`+SE,
+  piscine:     S+`<path d="M4 17.2c1.1-1 2.2-1 3.3 0 1.1 1 2.2 1 3.3 0 1.1-1 2.2-1 3.3 0 1.1 1 2.2 1 3.3 0 1.1-1 2.2-1 3.3 0"/><path d="M4 20.5c1.1-1 2.2-1 3.3 0 1.1 1 2.2 1 3.3 0 1.1-1 2.2-1 3.3 0 1.1 1 2.2 1 3.3 0 1.1-1 2.2-1 3.3 0"/><path d="M9 13.5V6a1.5 1.5 0 0 1 3 0v7.5"/><circle cx="16" cy="6.3" r="1.5"/>`+SE,
+  plan:        S+`<circle cx="12" cy="10.3" r="6.5"/><circle cx="12" cy="10.3" r="2"/><path d="M12 16.8c0 2-.9 3.7-2 3.7"/><path d="M12 16.8c0 2 .9 3.7 2 3.7"/>`+SE,
+  reception:   S+`<circle cx="8" cy="6.5" r="1.8"/><circle cx="16" cy="6.5" r="1.8"/><path d="M8 19v-6a1 1 0 0 1 1-1h1.5"/><path d="M16 19v-6a1 1 0 0 1-1-1h-1.5"/><rect x="4" y="13.5" width="16" height="5.5" rx="1"/><rect x="10.5" y="10.5" width="3" height="3" rx="0.5"/>`+SE,
+  restauration:S+`<path d="M6 9.5h10.5v3.8a5.25 5.25 0 0 1-10.5 0V9.5Z"/><path d="M16.5 10.5h1.3a2 2 0 0 1 0 4h-1.3"/><line x1="7" y1="19.2" x2="15" y2="19.2"/>`+SE,
+  reveil:      S+`<path d="M13.5 5.5H10a1.5 1.5 0 0 0-1.5 1.5v6h7v-4a3.5 3.5 0 0 0-2-3.1Z"/><path d="M4.5 19.5v-4a1.5 1.5 0 0 1 1.5-1.5h12a1.5 1.5 0 0 1 1.5 1.5v4"/><line x1="4.5" y1="19.5" x2="19.5" y2="19.5"/><path d="M7 8.5 4.5 5.5"/><path d="M17.5 8.5 20 5.5"/>`+SE,
+  roomservice: S+`<path d="M4 15h16"/><path d="M5.5 15A6.5 6.5 0 0 1 18.5 15"/><circle cx="12" cy="7.3" r="0.6" fill="#DB8A3C" stroke="none"/><line x1="12" y1="9" x2="12" y2="8.4"/><line x1="4" y1="18" x2="20" y2="18"/>`+SE,
+  securite:    S+`<path d="M12 4.2 18.5 6.5v5c0 4.3-2.7 7.6-6.5 8.3-3.8-.7-6.5-4-6.5-8.3v-5L12 4.2Z"/><path d="m9.2 12 1.9 1.9 3.7-3.9"/>`+SE,
+  shower:      S+`<path d="M6 9.5A5 5 0 0 1 15.5 7"/><path d="M17.5 9.5A1.5 1.5 0 1 1 15 8.3"/><line x1="7.5" y1="9.5" x2="16.5" y2="9.5"/><line x1="9" y1="13" x2="9" y2="14.3"/><line x1="12" y1="13" x2="12" y2="14.3"/><line x1="15" y1="13" x2="15" y2="14.3"/><line x1="9" y1="16.5" x2="9" y2="17.8"/><line x1="12" y1="16.5" x2="12" y2="17.8"/><line x1="15" y1="16.5" x2="15" y2="17.8"/><rect x="4.7" y="9.5" width="2.6" height="4" rx="0.8"/>`+SE,
+  singlebed:   S+`<path d="M4.5 19.5v-6.5a1.5 1.5 0 0 1 1.5-1.5h12a1.5 1.5 0 0 1 1.5 1.5v6.5"/><line x1="4.5" y1="19.5" x2="19.5" y2="19.5"/><path d="M4.5 8c1.6-1.5 2.9 1 4.6 0M9.7 8c1.6-1.5 2.9 1 4.6 0M14.9 8c1.6-1.5 2.9 1 4.6 0" stroke-width="1.1"/><path d="M6.5 11.5v-2M17.5 11.5v-2"/>`+SE,
+  spa:         S+`<path d="M12 5c1.6 1.8 2.4 3.4 2.4 5a2.4 2.4 0 1 1-4.8 0c0-1.6.8-3.2 2.4-5Z"/><path d="M7 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M17 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M5 19.5c1.6-1.2 3-1.7 4.4-1.7M19 19.5c-1.6-1.2-3-1.7-4.4-1.7"/>`+SE,
+  vip:         S+`<rect x="4.5" y="8.5" width="15" height="8" rx="2"/><text x="12" y="14.3" font-size="5.6" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800" letter-spacing="0.2">VIP</text>`+SE,
+  wifi:        S+`<rect x="3.5" y="6" width="17" height="12" rx="1.8"/><path d="M8 12a5.5 5.5 0 0 1 8 0"/><path d="M9.8 14a2.9 2.9 0 0 1 4.4 0"/><circle cx="12" cy="15.6" r="0.6" fill="#DB8A3C" stroke="none"/><line x1="10" y1="20" x2="14" y2="20"/>`+SE,
+};
 const LOGO_PICKER=[
-  {key:'wifi',    label:'WiFi'},
-  {key:'vip',     label:'VIP'},
-  {key:'map',     label:'Plan'},
-  {key:'link',    label:'Liens'},
-  {key:'bed',     label:'Logement'},
-  {key:'key',     label:'Clé'},
-  {key:'info',    label:'Info'},
-  {key:'coffee',  label:'Cafétéria'},
-  {key:'parking', label:'Parking'},
-  {key:'shower',  label:'Sanitaires'},
-  {key:'shield',  label:'Sécurité'},
-  {key:'star',    label:'VIP ★'},
-  {key:'home',    label:'Accueil'},
-  {key:'pin',     label:'Location'},
-  {key:'exit',    label:'Départ'},
-  {key:'sport',   label:'Sport'},
+  {key:'wifi',          label:'WiFi'},
+  {key:'vip',           label:'VIP'},
+  {key:'plan',          label:'Plan du Site'},
+  {key:'liens',         label:'Liens utiles'},
+  {key:'contacts',      label:'Contacts'},
+  {key:'annonces',      label:'Annonces'},
+  {key:'evenements',    label:'Événements'},
+  {key:'horaires',      label:'Horaires'},
+  {key:'consignes',     label:'Consignes'},
+  {key:'securite',      label:'Sécurité'},
+  {key:'incendie',      label:'Incendie'},
+  {key:'checkout',      label:'Check-out'},
+  {key:'checkinout',    label:'Check-in/out'},
+  {key:'restauration',  label:'Restauration'},
+  {key:'petitdejeuner', label:'Petit-déjeuner'},
+  {key:'parking',       label:'Parking'},
+  {key:'shower',        label:'Douche'},
+  {key:'doublebed',     label:'Chambre double'},
+  {key:'singlebed',     label:'Chambre simple'},
+  {key:'cles',          label:'Carte-clé'},
+  {key:'cleroom',       label:'Clé porte-clé'},
+  {key:'blanchisserie', label:'Blanchisserie'},
+  {key:'menage',        label:'Ménage'},
+  {key:'cleaning',      label:'Nettoyage'},
+  {key:'bagagerie',     label:'Bagagerie'},
+  {key:'bagage',        label:'Bagage'},
+  {key:'reception',     label:'Réception'},
+  {key:'garde',         label:'Garde/Concierge'},
+  {key:'bellservice',   label:'Concierge cloche'},
+  {key:'maintenance',   label:'Maintenance'},
+  {key:'medecin',       label:'Médecin'},
+  {key:'roomservice',   label:'Room Service'},
+  {key:'reveil',        label:'Réveil'},
+  {key:'navette',       label:'Navette'},
+  {key:'fitness',       label:'Fitness'},
+  {key:'piscine',       label:'Piscine'},
+  {key:'spa',           label:'Spa'},
+  {key:'colis',         label:'Colis'},
+  {key:'faq',           label:'FAQ'},
+  {key:'nosmoking',     label:'Non-fumeur'},
+  {key:'meteo',         label:'Météo'},
+  {key:'climatisation', label:'Climatisation'},
+  {key:'hotelmap',      label:'Localisation'},
+  {key:'doorhandle',    label:'Porte'},
+  {key:'confirmationcheck',label:'Confirmation'},
 ];
 function buildLogoPicker(inputId,selectedKey){
   const btns=LOGO_PICKER.map(({key,label})=>{
-    const svg=(SVGS[key]||'');
+    const svg=(LOGO_SVGS[key]||'');
     return `<button type="button" class="tab-logo-btn${key===selectedKey?' selected':''}" onclick="selectTabLogo('${inputId}','${key}',this)" title="${label}">${svg}</button>`;
   }).join('');
   const noneSel=!selectedKey?' selected':'';
@@ -928,11 +990,17 @@ function selectTabLogo(inputId,key,btn){
   btn.classList.add('selected');
 }
 function _tcIcon(t){
-  if(t.svgIcon&&SVGS[t.svgIcon])
-    return SVGS[t.svgIcon].replace(/<svg /,'<svg style="width:16px;height:16px;flex-shrink:0" ');
+  if(t.svgIcon&&LOGO_SVGS[t.svgIcon])
+    return LOGO_SVGS[t.svgIcon].replace(/<svg /,'<svg style="width:18px;height:18px;flex-shrink:0" ');
   const svgKey=TYPE_SVG[t.type];
   if(svgKey) return SVGS[svgKey].replace(/<svg /,'<svg style="width:16px;height:16px;flex-shrink:0;stroke:var(--accent)" ');
   return `<span style="font-size:15px">${t.icon||'📌'}</span>`;
+}
+function applyTabEdit(i){
+  _saveTabFormValues();
+  renderNavTabs();
+  renderPanels();
+  toggleTabEdit(i);
 }
 function initNewTabLogoPicker(){
   const grid=document.getElementById('new-tab-logo-grid');
@@ -1348,7 +1416,7 @@ function renderNavTabs(){
     const svgKey=TYPE_SVG[t.type];
     const tabColor=t.color||'var(--accent)';
     let icon;
-    if(t.svgIcon&&SVGS[t.svgIcon]) icon=SVGS[t.svgIcon].replace(/currentColor/g,tabColor);
+    if(t.svgIcon&&LOGO_SVGS[t.svgIcon]) icon=LOGO_SVGS[t.svgIcon];
     else if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${tabColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
     else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,tabColor);
     else icon=`<span style="font-size:17px">${t.icon||''}</span>`;
@@ -1370,7 +1438,7 @@ function renderPanels(){
     const svgKey=TYPE_SVG[t.type];
     const panelColor=t.color||'var(--accent)';
     let icon;
-    if(t.svgIcon&&SVGS[t.svgIcon]) icon=SVGS[t.svgIcon].replace(/currentColor/g,panelColor);
+    if(t.svgIcon&&LOGO_SVGS[t.svgIcon]) icon=LOGO_SVGS[t.svgIcon];
     else if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${panelColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
     else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,panelColor);
     else icon=`<span style="font-size:20px">${t.icon||''}</span>`;
@@ -1616,6 +1684,9 @@ function loadTabsConfig(){
             <label>Nom EN</label>
             <input type="text" id="tab-nom-en-${i}" value="${escVal((t.nom||{}).en||'')}" placeholder="English name">
           </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn btn-primary" onclick="applyTabEdit(${i})" style="min-height:32px;padding:5px 18px;font-size:12px">✓ Accepter</button>
         </div>
       </div>
     </div>`).join('');

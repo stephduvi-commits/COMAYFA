@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @font-face { font-family: 'system'; src: local('system-ui'); }
+  </style>
+</helmet>
+<div style="min-height:100vh; background:#F6F3EF; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; padding:56px 64px 80px;">
+
+  <div style="display:flex; align-items:center; gap:20px; margin-bottom:8px;">
+    <div style="width:56px; height:56px; border-radius:14px; background:#E2933F; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; letter-spacing:0.5px;">ELU</div>
+    <div>
+      <div style="font-size:28px; font-weight:800; color:#2A2622;">Planche contact — Logos d'onglets</div>
+      <div style="font-size:15px; color:#8A7F73; margin-top:2px;">Set monochrome orange · 41 icônes + 6 icônes sécurité (rouge) · style outline fin, arrondi</div>
+    </div>
+  </div>
+
+  <div style="height:1px; background:#E7DFD5; margin:28px 0 40px;"></div>
+
+  <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:28px;">
+    <sc-for list="{{ icons }}" as="icon" hint-placeholder-count="41">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px; background:#fff; border:1px solid #EEE6DB; border-radius:20px; padding:22px 12px 18px;">
+        <sc-if value="{{ icon.src }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ icon.src }}" alt="{{ icon.label }}" style="width:88px; height:88px;" />
+        </sc-if>
+        <div style="font-size:14px; font-weight:700; color:#3A342D; text-align:center;">{{ icon.label }}</div>
+        <div style="font-size:11px; color:#B0A493; font-family:monospace;">{{ icon.file }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:44px; margin-bottom:20px; display:flex; align-items:center; gap:14px;">
+    <div style="font-size:19px; font-weight:800; color:#7A2A20;">Informations sécurité</div>
+    <div style="font-size:13px; color:#B57067;">Set rouge · police, incendie, garde…</div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:28px;">
+    <sc-for list="{{ safetyIcons }}" as="icon" hint-placeholder-count="6">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px; background:#fff; border:1px solid #F3DEDB; border-radius:20px; padding:22px 12px 18px;">
+        <sc-if value="{{ icon.src }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ icon.src }}" alt="{{ icon.label }}" style="width:88px; height:88px;" />
+        </sc-if>
+        <div style="font-size:14px; font-weight:700; color:#3A342D; text-align:center;">{{ icon.label }}</div>
+        <div style="font-size:11px; color:#B0A493; font-family:monospace;">{{ icon.file }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:48px; padding:20px 24px; background:#FDEAD6; border-radius:16px; color:#8A5A24; font-size:14px; line-height:1.5;">
+    Chaque logo est fourni en fichier SVG séparé (fond carré arrondi inclus), prêt à l'emploi pour les onglets de l'app. Livraison en ZIP.
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const items = [
+      ["contacts", "Contacts"], ["consignes", "Consignes"], ["horaires", "Horaires"],
+      ["annonces", "Annonces"], ["evenements", "Événements"], ["checkout", "Check-out"],
+      ["restauration", "Restauration"], ["plan", "Plan du Site"], ["liens", "Liens utiles"],
+      ["vip", "VIP"], ["wifi", "Wifi"], ["securite", "Sécurité"], ["parking", "Parking"],
+      ["blanchisserie", "Blanchisserie"], ["menage", "Ménage"], ["cles", "Carte-clé"],
+      ["cleroom", "Porte-clé"], ["maintenance", "Maintenance"], ["meteo", "Météo"],
+      ["faq", "FAQ"], ["colis", "Colis"], ["roomservice", "Room Service"], ["spa", "Spa"],
+      ["piscine", "Piscine"], ["fitness", "Fitness"], ["navette", "Navette"],
+      ["bagagerie", "Bagagerie"], ["reception", "Réception"], ["climatisation", "Climatisation"],
+      ["petitdejeuner", "Petit-déjeuner / Thé"], ["doublebed", "Chambre double"],
+      ["singlebed", "Chambre simple"], ["doorhandle", "Poignée de porte"],
+      ["checkinout", "Check-in/out"], ["confirmationcheck", "Confirmation"],
+      ["bellservice", "Service concierge"], ["concierge", "Concierge"], ["shower", "Douche"],
+      ["reveil", "Service réveil"], ["cleaning", "Nettoyage"], ["nosmoking", "Non-fumeur"],
+      ["hotelmap", "Localisation hôtel"], ["medecin", "Médecin / Secours médical"],
+      ["bagage", "Bagage à main"]
+    ];
+    const safety = [
+      ["police", "Police"], ["incendie", "Incendie"], ["garde", "Garde de sécurité"],
+      ["secours", "Premiers secours"], ["sortiesecours", "Sortie de secours"], ["urgence", "Urgence"]
+    ];
+    return {
+      icons: items.map(([id, label]) => ({
+        src: `logos/${id}.svg`,
+        label,
+        file: `${id}.svg`
+      })),
+      safetyIcons: safety.map(([id, label]) => ({
+        src: `logos/${id}.svg`,
+        label,
+        file: `${id}.svg`
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

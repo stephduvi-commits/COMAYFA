@@ -231,7 +231,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tab-config-row{display:flex;align-items:center;gap:10px;width:100%;}
 .tab-edit-form{display:none;width:100%;padding:10px 0 2px;border-top:1px solid var(--border);margin-top:4px;}
 .tab-edit-form.open{display:block;}
-.tab-edit-grid{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:6px;align-items:end;}
+.tab-edit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:end;}
 .tab-edit-grid label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;}
 .tab-edit-grid input{width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg);}
 .tab-edit-grid input:focus{outline:none;border-color:var(--accent);}
@@ -244,7 +244,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tab-toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .tab-toggle input:checked+.tab-toggle-track::after{transform:translateX(18px);}
 .tab-config-info{flex:1;min-width:0;}
-.tab-config-info .tc-name{font-size:14px;font-weight:700;}
+.tab-config-info .tc-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.tab-logo-grid{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px;}
+.tab-logo-btn{width:40px;height:40px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:5px;transition:border-color .15s,background .15s;}
+.tab-logo-btn svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.tab-logo-btn:hover{border-color:var(--accent);background:var(--white);}
+.tab-logo-btn.selected{border-color:var(--accent);background:var(--accent-bg);}
+.tab-logo-btn-none{font-size:16px;color:var(--muted);}
+.tab-logo-section{margin-bottom:10px;}
+.tab-logo-section>label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;}
 .tab-config-info .tc-type{font-size:11px;color:var(--muted);}
 /* Logo */
 .logo-preview{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
@@ -630,12 +638,16 @@ body {background:#ECEEF4;}
   <div class="admin-card">
    <div class="admin-card-header">➕ Ajouter un onglet personnalisé</div>
    <div class="admin-card-body">
-    <div class="form-row">
-     <div><label>Icône (emoji)</label><input type="text" id="new-tab-icon" maxlength="2" placeholder="📌"></div>
-     <div><label>Nom (FR)</label><input type="text" id="new-tab-name-fr" placeholder="Ex: Règlement"></div>
+    <input type="hidden" id="new-tab-svgicon" value="">
+    <div class="tab-logo-section">
+     <label>Logo</label>
+     <div class="tab-logo-grid" id="new-tab-logo-grid"></div>
     </div>
     <div class="form-row">
+     <div><label>Nom (FR)</label><input type="text" id="new-tab-name-fr" placeholder="Ex: Règlement"></div>
      <div><label>Nom (NL)</label><input type="text" id="new-tab-name-nl" placeholder="Ex: Reglement"></div>
+    </div>
+    <div class="form-row">
      <div><label>Nom (EN)</label><input type="text" id="new-tab-name-en" placeholder="Ex: Rules"></div>
     </div>
     <label>Type de contenu</label>
@@ -864,8 +876,70 @@ const SVGS={
   bell:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
   calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   file:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  wifi:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>`,
+  vip:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 18 6 6 10 14 12 9 14 14 18 6 22 18"/><line x1="2" y1="21" x2="22" y2="21"/></svg>`,
+  map:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`,
+  link:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
+  bed:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20v-8h20v8"/><path d="M2 12V7a2 2 0 012-2h4v5"/><rect x="12" y="7" width="8" height="5" rx="1"/></svg>`,
+  key:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5L17 6l3 3-1.5 1.5"/></svg>`,
+  info:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  coffee:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  parking:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17V7h4a3 3 0 010 6H9"/></svg>`,
+  shower:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>`,
+  shield:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  home:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  exit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  sport:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
 };
 const TYPE_SVG={regles:'clipboard',contacts:'phone',horaires:'clock',annonces:'bell',evenements:'calendar',libre:'file'};
+const LOGO_PICKER=[
+  {key:'wifi',    label:'WiFi'},
+  {key:'vip',     label:'VIP'},
+  {key:'map',     label:'Plan'},
+  {key:'link',    label:'Liens'},
+  {key:'bed',     label:'Logement'},
+  {key:'key',     label:'Clé'},
+  {key:'info',    label:'Info'},
+  {key:'coffee',  label:'Cafétéria'},
+  {key:'parking', label:'Parking'},
+  {key:'shower',  label:'Sanitaires'},
+  {key:'shield',  label:'Sécurité'},
+  {key:'star',    label:'VIP ★'},
+  {key:'home',    label:'Accueil'},
+  {key:'pin',     label:'Location'},
+  {key:'exit',    label:'Départ'},
+  {key:'sport',   label:'Sport'},
+];
+function buildLogoPicker(inputId,selectedKey){
+  const btns=LOGO_PICKER.map(({key,label})=>{
+    const svg=(SVGS[key]||'');
+    return `<button type="button" class="tab-logo-btn${key===selectedKey?' selected':''}" onclick="selectTabLogo('${inputId}','${key}',this)" title="${label}">${svg}</button>`;
+  }).join('');
+  const noneSel=!selectedKey?' selected':'';
+  return btns+`<button type="button" class="tab-logo-btn tab-logo-btn-none${noneSel}" onclick="selectTabLogo('${inputId}','',this)" title="Aucun logo">—</button>`;
+}
+function selectTabLogo(inputId,key,btn){
+  const inp=document.getElementById(inputId);
+  if(inp) inp.value=key;
+  const grid=btn.closest('.tab-logo-grid');
+  if(grid) grid.querySelectorAll('.tab-logo-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function _tcIcon(t){
+  if(t.svgIcon&&SVGS[t.svgIcon])
+    return SVGS[t.svgIcon].replace(/<svg /,'<svg style="width:16px;height:16px;flex-shrink:0" ');
+  const svgKey=TYPE_SVG[t.type];
+  if(svgKey) return SVGS[svgKey].replace(/<svg /,'<svg style="width:16px;height:16px;flex-shrink:0;stroke:var(--accent)" ');
+  return `<span style="font-size:15px">${t.icon||'📌'}</span>`;
+}
+function initNewTabLogoPicker(){
+  const grid=document.getElementById('new-tab-logo-grid');
+  if(grid) grid.innerHTML=buildLogoPicker('new-tab-svgicon','');
+  const inp=document.getElementById('new-tab-svgicon');
+  if(inp) inp.value='';
+}
 const RULE_ICONS=[
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>`,
@@ -1274,9 +1348,10 @@ function renderNavTabs(){
     const svgKey=TYPE_SVG[t.type];
     const tabColor=t.color||'var(--accent)';
     let icon;
-    if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${tabColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
-    else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,'currentColor');
-    else icon=`<span style="font-size:17px">${t.icon}</span>`;
+    if(t.svgIcon&&SVGS[t.svgIcon]) icon=SVGS[t.svgIcon].replace(/currentColor/g,tabColor);
+    else if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${tabColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
+    else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,tabColor);
+    else icon=`<span style="font-size:17px">${t.icon||''}</span>`;
     const activeStyle=t.color?`style="color:${tabColor};border-bottom-color:${tabColor}"`:'' ;
     return `<button class="tab-btn${i===0?' active':''}" data-tabid="${t.id}" onclick="showTab('${t.id}')" data-color="${tabColor}">${icon}${esc(nom)}</button>`;
   }).join('');
@@ -1295,9 +1370,10 @@ function renderPanels(){
     const svgKey=TYPE_SVG[t.type];
     const panelColor=t.color||'var(--accent)';
     let icon;
-    if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${panelColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
+    if(t.svgIcon&&SVGS[t.svgIcon]) icon=SVGS[t.svgIcon].replace(/currentColor/g,panelColor);
+    else if(t.icon==='🔥') icon=`<svg viewBox="0 0 24 24" fill="none" stroke="${panelColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-5-5-9-5-9z"/><path d="M9 14c0 1.66 1.34 3 3 3s3-1.34 3-3c0-2-3-5-3-5s-3 3-3 5z"/></svg>`;
     else if(svgKey) icon=SVGS[svgKey].replace(/currentColor/g,panelColor);
-    else icon=`<span style="font-size:20px">${t.icon}</span>`;
+    else icon=`<span style="font-size:20px">${t.icon||''}</span>`;
     return `<div class="tab-panel${i===0?' active':''}" id="panel-${t.id}">
       <div class="section-title">${icon}<h2 style="color:${panelColor}">${esc(nom)}</h2></div>
       <div id="content-${t.id}"></div>
@@ -1465,6 +1541,7 @@ function loadAdminForms(){
   // Onglets
   loadTabsConfig();
   populateContentSelect();
+  initNewTabLogoPicker();
 }
 
 function selectEmoji(e){
@@ -1514,18 +1591,19 @@ function loadTabsConfig(){
           <div class="tab-toggle-track"></div>
         </label>
         <div class="tab-config-info">
-          <div class="tc-name">${t.icon} ${esc(tl(t.nom))}</div>
+          <div class="tc-name">${_tcIcon(t)} ${esc(tl(t.nom))}</div>
           <div class="tc-type" style="font-size:10px;color:var(--muted)">${t.type} · ${t.active?'Visible':'Masqué'}</div>
         </div>
         <button class="btn-edit-tab" onclick="toggleTabEdit(${i})" id="btn-edit-tab-${i}" title="Modifier nom et icône">✏️</button>
         ${i>=5?`<button class="btn btn-danger" onclick="deleteTab(${i})" style="position:static;flex-shrink:0;min-height:32px;padding:6px 10px">✕</button>`:''}
       </div>
       <div class="tab-edit-form" id="tab-edit-form-${i}">
+        <input type="hidden" id="tab-svgicon-${i}" value="${escVal(t.svgIcon||'')}">
+        <div class="tab-logo-section">
+          <label>Logo</label>
+          <div class="tab-logo-grid">${buildLogoPicker('tab-svgicon-'+i,t.svgIcon||'')}</div>
+        </div>
         <div class="tab-edit-grid">
-          <div>
-            <label>Icône</label>
-            <input type="text" id="tab-icon-${i}" value="${escVal(t.icon||'')}" maxlength="4" placeholder="🏠">
-          </div>
           <div>
             <label>Nom FR</label>
             <input type="text" id="tab-nom-fr-${i}" value="${escVal((t.nom||{}).fr||'')}" placeholder="Nom français">
@@ -1558,8 +1636,8 @@ function _saveTabFormValues(){
   DATA.tabs.forEach((t,i)=>{
     const cb=document.getElementById(`tab-active-${i}`);
     if(cb) t.active=cb.checked;
-    const icon=document.getElementById(`tab-icon-${i}`);
-    if(icon) t.icon=icon.value.trim()||t.icon;
+    const svgicon=document.getElementById(`tab-svgicon-${i}`);
+    if(svgicon!=null) t.svgIcon=svgicon.value;
     const fr=document.getElementById(`tab-nom-fr-${i}`);
     const nl=document.getElementById(`tab-nom-nl-${i}`);
     const en=document.getElementById(`tab-nom-en-${i}`);
@@ -1625,17 +1703,17 @@ function initSortableTabs(){
 }
 
 function addCustomTab(){
-  const icon=document.getElementById('new-tab-icon').value.trim()||'📌';
+  const svgIcon=document.getElementById('new-tab-svgicon')?.value||'';
   const fr=document.getElementById('new-tab-name-fr').value.trim();
   const nl=document.getElementById('new-tab-name-nl').value.trim()||fr;
   const en=document.getElementById('new-tab-name-en').value.trim()||fr;
   const type=document.getElementById('new-tab-type').value;
   if(!fr){showToast('⚠️ Donnez un nom (FR) à l\'onglet');return;}
-  DATA.tabs.push({id:'custom_'+Date.now(),nom:{fr,nl,en},icon,type,active:true});
+  DATA.tabs.push({id:'custom_'+Date.now(),nom:{fr,nl,en},icon:'📌',svgIcon,type,active:true});
   document.getElementById('new-tab-name-fr').value='';
   document.getElementById('new-tab-name-nl').value='';
   document.getElementById('new-tab-name-en').value='';
-  document.getElementById('new-tab-icon').value='';
+  initNewTabLogoPicker();
   loadTabsConfig(); showToast('✅ Onglet ajouté !');
 }
 function deleteTab(i){if(!confirm('Supprimer cet onglet ?'))return;DATA.tabs.splice(i,1);loadTabsConfig();}

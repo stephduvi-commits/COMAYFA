@@ -1,0 +1,35 @@
+Subject: Accès au panneau d'affichage COMAYFA – Vos identifiants
+
+Bonjour,
+
+Ton accès à l'application COMAYFA (panneau d'affichage du Camp Adjudant Brasseur) vient d'être créé.
+
+Vos identifiants provisoires :
+  • Adresse email : [EMAIL]
+  • Mot de passe provisoire : [MOT DE PASSE]
+
+
+ PREMIÈRE CONNEXION – Changer votre mot de passe
+
+1. Ouvre l'application COMAYFA Admin dans ton navigateur :
+   https://stephduvi-commits.github.io/COMAYFA/admin.html
+
+2. Connecte-toi avec les identifiants ci-dessus.
+
+3. Une fois connecté, clique sur ton adresse email en haut à droite de l'écran.
+
+4. Sélectionne « Changer le mot de passe ».
+
+5. Saisis un nouveau mot de passe personnel et confirme.
+
+Ton accès est ensuite actif et le mot de passe provisoire ne fonctionnera plus.
+
+
+En cas de problème de connexion ou si tu as oublié ton mot de passe, contacte-moi directement et je te génèrerai un nouvel accès.
+
+Bonne utilisation,
+
+Stéphane Duvivier
+EQUANS ELU – Service For You
+Camp Adjudant Brasseur, Amay
+stephane.duvivier@equans.com

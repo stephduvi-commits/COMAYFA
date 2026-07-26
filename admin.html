@@ -2654,11 +2654,21 @@ async function sendResetEmail(){
   msg.style.display='none';
   if(!email){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Saisissez votre email.';return;}
   msg.style.display='block';msg.style.color='var(--muted)';msg.textContent='Envoi en cours…';
-  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{
-    redirectTo:'https://stephduvi-commits.github.io/COMAYFA/admin.html'
-  });
-  if(error){msg.style.color='var(--red)';msg.textContent='Erreur : '+(error.message||error.code||error.status||JSON.stringify(error));}
-  else{msg.style.color='var(--green)';msg.textContent='Email envoyé ! Vérifiez votre boîte mail.';}
+  try{
+    const {data,error}=await supabaseClient.auth.resetPasswordForEmail(email,{
+      redirectTo:'https://stephduvi-commits.github.io/COMAYFA/admin.html'
+    });
+    console.log('[reset] data:',data,'error:',error);
+    if(error){
+      const detail=error.message||error.code||String(error.status)||JSON.stringify(error)||'inconnue';
+      msg.style.color='var(--red)';msg.textContent='Erreur : '+detail;
+    } else {
+      msg.style.color='var(--green)';msg.textContent='Email envoyé ! Vérifiez votre boîte mail.';
+    }
+  }catch(e){
+    console.error('[reset] exception:',e);
+    msg.style.color='var(--red)';msg.textContent='Erreur réseau : '+(e.message||String(e));
+  }
 }
 
 async function applyNewPwd(){

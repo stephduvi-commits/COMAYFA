@@ -1,0 +1,22 @@
+name: Keep Alive – COMAYFA Supabase
+
+on:
+  schedule:
+    - cron: '0 8 */4 * *'   # toutes les 4 jours à 08h00 UTC
+  workflow_dispatch:          # déclenchement manuel possible
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://aiuqiqzzldolindsdyny.supabase.co/rest/v1/panneau_data?id=eq.1&select=id" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY_COMAYFA }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY_COMAYFA }}")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Supabase ping returned $STATUS"
+            exit 1
+          fi

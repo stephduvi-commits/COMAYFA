@@ -2657,7 +2657,7 @@ async function sendResetEmail(){
   const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{
     redirectTo:'https://stephduvi-commits.github.io/COMAYFA/admin.html'
   });
-  if(error){msg.style.color='var(--red)';msg.textContent='Erreur : '+error.message;}
+  if(error){msg.style.color='var(--red)';msg.textContent='Erreur : '+(error.message||error.code||error.status||JSON.stringify(error));}
   else{msg.style.color='var(--green)';msg.textContent='Email envoyé ! Vérifiez votre boîte mail.';}
 }
 

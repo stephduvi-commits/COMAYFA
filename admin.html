@@ -708,7 +708,7 @@ const SUPABASE_URL = 'https://aiuqiqzzldolindsdyny.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpdXFpcXp6bGRvbGluZHNkeW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTk5NDMsImV4cCI6MjA5Njk5NTk0M30.XCCYoFe5695ZshyL-3969D0lxYQnOpaWLOWAuFNdBMg';
 const ADMIN_EMAIL = 'steph.duvi@gmail.com';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false }
+  auth: { persistSession: true, autoRefreshToken: true }
 });
 
 function expireOldAnnonces() {
@@ -1024,7 +1024,6 @@ const EMOJI_LOGOS=['🏛️','🏠','🏢','🏥','🎓','⚡','🔧','🛡️',
 const DEFAULT={
   titre:'Bâtiment Logement',
   sousTitre:'Camp Adjudant Brasseur · 1A 4540 Amay',
-  pwd:'admin1234',
   accentColor:'#F49634',
   logo:{type:'initials',value:'ELU'},
   waUrl:'', waLabelFr:"S'abonner aux notifications WhatsApp", waLabelNl:'WhatsApp-meldingen ontvangen', waLabelEn:'Subscribe to WhatsApp notifications',
@@ -2444,17 +2443,20 @@ function saveAll(){
   });
 }
 
-function changePwd(){
+async function changePwd(){
   const p1=document.getElementById('new-pwd1').value,p2=document.getElementById('new-pwd2').value;
   const msg=document.getElementById('pwd-change-msg');
+  msg.style.display='none';
   if(!p1){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Mot de passe vide.';return;}
   if(p1!==p2){msg.style.display='block';msg.style.color='var(--red)';msg.textContent='Les mots de passe ne correspondent pas.';return;}
-  DATA.pwd=p1;localStorage.setItem('panneau_v4',JSON.stringify(DATA));
-  supabaseClient.auth.updateUser({ password: p1 }).then(({error}) => {
-    if(error) msg.textContent += ' (erreur màj Supabase: '+error.message+')';
-  });
-  msg.style.display='block';msg.style.color='var(--green)';msg.textContent='Mot de passe mis à jour !';
-  document.getElementById('new-pwd1').value='';document.getElementById('new-pwd2').value='';
+  msg.style.display='block';msg.style.color='var(--muted)';msg.textContent='Mise à jour en cours…';
+  const {error}=await supabaseClient.auth.updateUser({ password: p1 });
+  if(error){
+    msg.style.color='var(--red)';msg.textContent='Erreur : '+error.message;
+  } else {
+    msg.style.color='var(--green)';msg.textContent='Mot de passe mis à jour !';
+    document.getElementById('new-pwd1').value='';document.getElementById('new-pwd2').value='';
+  }
 }
 
 /* ── Preview lien WhatsApp ── */
@@ -2566,11 +2568,8 @@ async function checkSupabaseAuth() {
       return;
     }
     loadEl.style.display = 'none';
-    document.getElementById('admin-pwd').value = '';
     await loadFromSupabase();
-    document.getElementById('admin-login-page').style.display = 'none';
-    document.getElementById('admin-content-page').style.display = 'block';
-    try { loadAdminForms(); } catch(e) { console.error(e); }
+    _showAdminPage();
   } catch(e) {
     loadEl.style.display = 'none';
     errEl.style.display = 'block';
@@ -2581,9 +2580,7 @@ async function checkSupabaseAuth() {
 async function logoutAdmin() {
   if (!confirm('Se déconnecter ?')) return;
   await supabaseClient.auth.signOut();
-  document.getElementById('admin-content-page').style.display = 'none';
-  document.getElementById('admin-login-page').style.display = 'flex';
-  document.getElementById('admin-pwd').value = '';
+  _showLoginPage();
 }
 
 function showAdminTab(id,btn){
@@ -2600,21 +2597,40 @@ function confirmLeave(){
 
 function openAdmin(){ /* no-op dans admin.html */ }
 
-// Vérifier session Supabase au chargement
+function _showLoginPage(msg){
+  document.getElementById('admin-content-page').style.display='none';
+  document.getElementById('admin-login-page').style.display='flex';
+  document.getElementById('admin-pwd').value='';
+  const errEl=document.getElementById('pwd-error');
+  if(msg){errEl.textContent=msg;errEl.style.display='block';}
+  else{errEl.style.display='none';}
+}
+
+function _showAdminPage(){
+  document.getElementById('admin-login-page').style.display='none';
+  document.getElementById('admin-content-page').style.display='block';
+  try{loadAdminForms();}catch(e){console.error(e);}
+}
+
+// Gestion expiration de session en cours d'édition
+supabaseClient.auth.onAuthStateChange((event)=>{
+  if(event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'&&false){
+    if(document.getElementById('admin-content-page').style.display==='block'){
+      _showLoginPage('Session expirée — veuillez vous reconnecter.');
+    }
+  }
+});
+
 window.addEventListener('DOMContentLoaded', async function(){
   applyColor(DATA.accentColor||'#F49634');
-  // Vérifier session Supabase
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
+  if(session){
     await loadFromSupabase();
-    document.getElementById('admin-login-page').style.display = 'none';
-    document.getElementById('admin-content-page').style.display = 'block';
-    try { loadAdminForms(); } catch(e) { console.error(e); }
+    _showAdminPage();
   } else {
-    document.getElementById('admin-login-page').style.display = 'flex';
+    _showLoginPage();
   }
-  // Service Worker
-  if ('serviceWorker' in navigator) {
+  if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./admin-sw.js').catch(()=>{});
   }
 });

@@ -2228,12 +2228,26 @@ async function libreEditorCopy(tgtLang){
   if(tgtLang===_editCtx.srcLang){
     target.value=ta.value;showToast(`✓ → ${tgtLang.toUpperCase()}`);return;
   }
+  const txt=ta.value.trim();
+  if(!txt){showToast('⚠️ Rien à traduire');return;}
+  if(txt.length>450){showToast('⚠️ Texte trop long — divisez en paragraphes');return;}
   showToast(`⏳ Traduction → ${tgtLang.toUpperCase()}…`);
   try{
-    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(ta.value)}&langpair=${_editCtx.srcLang}|${tgtLang}`;
-    const r=await fetch(url);const d=await r.json();
-    if(d.responseStatus===200){target.value=d.responseData.translatedText;showToast(`✓ → ${tgtLang.toUpperCase()}`);}
-    else showToast('⚠️ Traduction échouée');
+    const langMap={fr:'fr-BE',nl:'nl-BE',en:'en-GB'};
+    const src=langMap[_editCtx.srcLang]||_editCtx.srcLang;
+    const tgt=langMap[tgtLang]||tgtLang;
+    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(txt)}&langpair=${src}|${tgt}&de=steph.duvi@gmail.com`;
+    const r=await fetch(url);
+    const d=await r.json();
+    const translated=d.responseData?.translatedText||'';
+    if(d.responseStatus===429||(d.responseDetails||'').toUpperCase().includes('USED ALL')){
+      showToast('⚠️ Quota journalier atteint — réessayez demain');
+    } else if(d.responseStatus===200 && translated && !translated.toUpperCase().includes('MYMEMORY WARNING')){
+      target.value=translated;
+      showToast(`✓ → ${tgtLang.toUpperCase()}`);
+    } else {
+      showToast('⚠️ Traduction indisponible');
+    }
   }catch(e){showToast('⚠️ Erreur réseau');}
 }
 

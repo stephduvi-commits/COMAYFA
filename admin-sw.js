@@ -1,8 +1,7 @@
-const CACHE = 'comayfa-admin-v4';
+const CACHE = 'comayfa-admin-v5';
 const CDN_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap',
   'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js',
-  'https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 

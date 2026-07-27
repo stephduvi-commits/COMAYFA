@@ -246,6 +246,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .libre-mail{color:#2563EB;}
 .libre-tel{color:var(--green);}
 .free-content a:active,.libre-link:active,.libre-mail:active,.libre-tel:active{opacity:.7;}
+.numbered-bullet{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background-color:var(--accent);color:white;font-weight:700;font-size:10px;margin-right:5px;padding:0 2px;flex-shrink:0;}
 
 /* Vide */
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
@@ -1259,20 +1260,28 @@ function renderLibreContent(txt){
   if(!txt) return '';
   const isHTML=/<[a-z][^>]*>/i.test(txt);
   if(isHTML){
-    // TipTap HTML : ajouter target=_blank et auto-lier les URLs nues dans le texte
     let html=txt.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
-    // Auto-lier les URLs en texte brut entre les balises (pas dans les attributs)
     html=html.replace(/(>[^<]*?<)/g, seg=>seg.replace(/(https?:\/\/[^\s<&"']+)/g,
       u=>`<a class="libre-link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`));
     return html;
   }
-  // Texte brut : convertir en paragraphes propres (double \n = nouveau §, simple \n = <br>)
-  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const paras=txt.split(/\n{2,}/);
-  return paras.map(para=>{
-    const lines=para.split('\n').map(l=>_autoLink(esc(l)));
-    return `<p>${lines.join('<br>')}</p>`;
-  }).join('');
+  return _markdownToHtml(txt);
+}
+
+function _markdownToHtml(text){
+  if(!text) return '';
+  let html=text;
+  html=html.replace(/\[(\d+)\]/g,'<span class="numbered-bullet">$1</span>');
+  html=html.replace(/^### (.*?)(?:\s*#+)?$/gm,'<h3>$1</h3>');
+  html=html.replace(/^## (.*?)(?:\s*#+)?$/gm,'<h2>$1</h2>');
+  html=html.replace(/^# (.*?)(?:\s*#+)?$/gm,'<h1>$1</h1>');
+  html=html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  html=html.replace(/_(.*?)_/g,'<em>$1</em>');
+  html=html.replace(/~~(.*?)~~/g,'<del>$1</del>');
+  html=html.replace(/\[(.*?)\]\((.*?)\)/g,(m,label,url)=>`<a class="libre-link" href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+  html=html.replace(/^- (.*?)$/gm,'<li>$1</li>');
+  html=html.split('\n\n').map(p=>p.match(/^<[holi]/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
+  return html;
 }
 
 function openContent(tabId){

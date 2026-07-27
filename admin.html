@@ -191,6 +191,7 @@ main{padding:12px 12px 100px;}
 .sym-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px;}
 .sym-btn{padding:4px 5px;font-size:14px;background:white;border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .15s;line-height:1;}
 .sym-btn:hover{background:var(--accent-bg);transform:scale(1.15);}
+.sym-bin{padding:3px;line-height:0;}
 #libre-editor-area{display:flex;flex:1;min-height:0;overflow:hidden;}
 #libre-editor-ta{flex:1;resize:none;padding:12px;border:none;border-right:1px solid var(--border);font-size:14px;line-height:1.6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:white;color:var(--text);outline:none;min-height:300px;}
 #libre-editor-ta:focus{background:#fffef8;}
@@ -2226,6 +2227,13 @@ async function libreEditorCopy(tgtLang){
 }
 
 function _libreSymHtml(){
+  function binBtn(main,dark,txt,tip){
+    const svgBin=`<svg viewBox="0 0 18 23" width="22" height="27" style="display:block"><rect x="5" y="0.5" width="8" height="2" rx="1" fill="${dark}"/><rect x="0.5" y="2.5" width="17" height="3" rx="1.5" fill="${dark}"/><polygon points="1.5,5.5 16.5,5.5 15,22 3,22" fill="${main}"/><line x1="7.3" y1="7.5" x2="7" y2="20" stroke="${dark}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="9" y1="7.5" x2="9" y2="20" stroke="${dark}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="10.7" y1="7.5" x2="11" y2="20" stroke="${dark}" stroke-width="1" opacity="0.4" stroke-linecap="round"/></svg>`;
+    return {html:`<button class="sym-btn sym-bin" onclick="libreEditorInsertSym('${txt}')" title="${tip}">${svgBin}</button>`};
+  }
+  const svgGlass=`<svg viewBox="0 0 22 22" width="26" height="26" style="display:block"><path d="M2 12 Q2 2 11 2 Q20 2 20 12 L20 18 Q20 21 11 21 Q2 21 2 18 Z" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/><path d="M3 12 Q3 3 11 3 Q19 3 19 12" fill="none" stroke="#B0BEC5" stroke-width="0.8"/><ellipse cx="11" cy="6" rx="2.8" ry="1.6" fill="#546E7A"/></svg>`;
+  const glassBtn={html:`<button class="sym-btn sym-bin" onclick="libreEditorInsertSym('🫙 Verre — ')" title="Bulle à verres">${svgGlass}</button>`};
+
   const cats=[
     ['🚪 Évacuation & Sorties',['🚪','🚪 ← Sortie','🚪 → Sortie','🏃','🏃‍♀️','🪜','⬆️','⬇️','↩️','🛟']],
     ['📍 Point de Rassemblement',['📍','🏁','🎯','🚩','📌','🗺️','🧭','🚏','🛑','⛺']],
@@ -2233,6 +2241,14 @@ function _libreSymHtml(){
     ['🚫 Interdictions & Alertes',['🚫','⛔','❌','⚠️','🚭','🚷','☠️','⚡','🔞','⛔🔥']],
     ['🍽️ Restauration',['🍽️','🍴','🥘','🍲','🥗','🥛','☕','🍞','🍎','🥤']],
     ['♻️ Déchets & Environnement',['🗑️','♻️','🟦','🟩','🟧','🟥','🟨','⚫','📦','🌍']],
+    ['🗑️ Poubelles colorées',[
+      binBtn('#1E88E5','#1565C0','🔵 PMC — ','Poubelle bleue — PMC (plastiques, métaux, cartons)'),
+      binBtn('#FDD835','#F57F17','🟡 Papier/Carton — ','Poubelle jaune — Papier/Carton'),
+      binBtn('#757575','#212121','⚫ Ménagers — ','Poubelle grise/noire — Déchets ménagers'),
+      binBtn('#43A047','#1B5E20','🟢 Organiques — ','Poubelle verte — Déchets organiques'),
+      binBtn('#E53935','#B71C1C','🔴 ','Poubelle rouge'),
+      glassBtn,
+    ]],
     ['🏥 Santé & Hygiène',['🏥','🩺','💊','🩹','💉','🧼','🧴','🧻','🚰','😷']],
     ['🏠 Bâtiment & Accès',['🏠','🏢','🏘️','🚪','🪟','🔒','🔓','🔑','🛏️','🚿']],
     ['⚙️ Communication & Temps',['📢','📣','📧','📱','📞','📅','⏰','🕐','⌛','💬']],
@@ -2246,7 +2262,14 @@ function _libreSymHtml(){
     ['📊 Données & Mesures',['📊','📈','📉','📋','📃','📄','📑','⚖️','📏','📐']],
     ['🚗 Transport & Mobilité',['🚗','🚕','🚙','🚌','🚎','🚐','🚛','🚚','✈️','🚁']],
   ];
-  return cats.map(([label,syms])=>`<div class="sym-cat-label">${label}</div><div class="sym-row">${syms.map(s=>`<button class="sym-btn" onclick="libreEditorInsertSym('${s}')">${s}</button>`).join('')}</div>`).join('');
+  return cats.map(([label,syms])=>
+    `<div class="sym-cat-label">${label}</div><div class="sym-row">${
+      syms.map(s=>typeof s==='string'
+        ? `<button class="sym-btn" onclick="libreEditorInsertSym('${s}')">${s}</button>`
+        : s.html
+      ).join('')
+    }</div>`
+  ).join('');
 }
 
 function buildAdminLibre(tabId){

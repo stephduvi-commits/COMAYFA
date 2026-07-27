@@ -2227,13 +2227,24 @@ async function libreEditorCopy(tgtLang){
 
 function _libreSymHtml(){
   const cats=[
-    ['🚪 Évacuation & Sorties',['🚪','🏃','⬆️','⬇️','↩️','🛟','🚏']],
-    ['📍 Point de Rassemblement',['📍','🏁','🎯','🚩','📌','🗺️']],
-    ['🔥 Incendie & Secours',['🔥','🧯','🚨','🚑','🚒','⛑️']],
-    ['🚫 Interdictions',['🚫','⛔','❌','⚠️']],
-    ['♻️ Déchets',['🗑️','♻️','🟦','🟩']],
-    ['🏥 Santé & Hygiène',['🏥','🧼','🚰','😷']],
-    ['✅ Symboles',['✓','✅','→','←','🔴','🟢']],
+    ['🚪 Évacuation & Sorties',['🚪','🚪 ← Sortie','🚪 → Sortie','🏃','🏃‍♀️','🪜','⬆️','⬇️','↩️','🛟']],
+    ['📍 Point de Rassemblement',['📍','🏁','🎯','🚩','📌','🗺️','🧭','🚏','🛑','⛺']],
+    ['🔥 Incendie & Secours',['🔥','🧯','🚨','🚑','🚒','⛑️','🆘','👨‍🚒','📞','🚁']],
+    ['🚫 Interdictions & Alertes',['🚫','⛔','❌','⚠️','🚭','🚷','☠️','⚡','🔞','⛔🔥']],
+    ['🍽️ Restauration',['🍽️','🍴','🥘','🍲','🥗','🥛','☕','🍞','🍎','🥤']],
+    ['♻️ Déchets & Environnement',['🗑️','♻️','🟦','🟩','🟧','🟥','🟨','⚫','📦','🌍']],
+    ['🏥 Santé & Hygiène',['🏥','🩺','💊','🩹','💉','🧼','🧴','🧻','🚰','😷']],
+    ['🏠 Bâtiment & Accès',['🏠','🏢','🏘️','🚪','🪟','🔒','🔓','🔑','🛏️','🚿']],
+    ['⚙️ Communication & Temps',['📢','📣','📧','📱','📞','📅','⏰','🕐','⌛','💬']],
+    ['👥 Personnes & Groupes',['👤','👥','👨','👩','👧','👦','👴','👵','🧑‍🦽','♿']],
+    ['✨ Symboles & Flèches',['✓','✅','★','⭐','→','←','↑','↓','•','━']],
+    ['🌡️ Météo & Conditions',['☀️','🌤️','⛅','☁️','🌧️','⛈️','❄️','🌡️','💨','💧']],
+    ['🦮 Accessibilité & PMR',['♿','🧑‍🦽','🧑‍🦯','🦻','🦼','🪶','👁️','🧠','❤️','🤝']],
+    ['🛠️ Outils & Équipement',['🔧','🔨','⚒️','🪛','⚙️','🔩','🪜','⛏️','🪓','🧰']],
+    ['🎖️ Zones & Localisations',['🏭','🏗️','🏛️','🏪','🏬','🏨','🏫','🏢','🌳','🚗']],
+    ['🎯 Statuts & Actions',['🔴','🟡','🟢','🔵','⏸️','⏹️','▶️','⏭️','🔁','🔄']],
+    ['📊 Données & Mesures',['📊','📈','📉','📋','📃','📄','📑','⚖️','📏','📐']],
+    ['🚗 Transport & Mobilité',['🚗','🚕','🚙','🚌','🚎','🚐','🚛','🚚','✈️','🚁']],
   ];
   return cats.map(([label,syms])=>`<div class="sym-cat-label">${label}</div><div class="sym-row">${syms.map(s=>`<button class="sym-btn" onclick="libreEditorInsertSym('${s}')">${s}</button>`).join('')}</div>`).join('');
 }

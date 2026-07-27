@@ -293,6 +293,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 #lang-picker{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.5);}
 #lang-picker > div{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:16px 16px 0 0;padding:20px;}
 
+/* ═══ DISPOSITION BUREAU (≥860px) ══════════════════════════ */
+@media(min-width:860px){
+  html,body{overflow:hidden;height:100%;}
+  body{background:#D8DCE8;}
+  #app{height:100vh;max-width:1280px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.18);overflow:hidden;}
+  #app-body{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 54px);overflow:hidden;}
+  #home-screen{display:block !important;overflow-y:auto;height:100%;background:var(--white);border-right:1px solid var(--border);padding:14px 12px 20px;}
+  #content-screen{display:block !important;overflow-y:auto;height:100%;padding:0;background:var(--bg);}
+  .content-topbar{position:sticky;top:0;z-index:10;}
+  .back-btn-content{display:none;}
+  .content-body{padding:16px 20px 40px;}
+  .rules-grid{grid-template-columns:1fr 1fr 1fr;}
+  .contacts-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .annonces-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .events-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .horaires-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .nav-card[data-active]{background:var(--accent-bg) !important;border-top-color:var(--accent-dk) !important;box-shadow:inset 0 0 0 2px var(--accent);}
+  .nav-card[data-active].red-card{background:var(--red-bg) !important;border-top-color:var(--red) !important;box-shadow:inset 0 0 0 2px var(--red);}
+  .content-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 110px);color:var(--muted);font-size:14px;text-align:center;padding:40px;}
+  .cp-icon{font-size:52px;opacity:.25;margin-bottom:14px;}
+}
+@media(max-width:859px){.content-placeholder{display:none;}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -349,6 +372,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     </div>
   </header>
 
+  <div id="app-body">
   <!-- ═══ ÉCRAN ACCUEIL — grille navigation ═══ -->
   <div id="home-screen">
     <div class="home-greeting">
@@ -370,8 +394,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       </button>
       <div class="content-topbar-title" id="content-topbar-title">—</div>
     </div>
-    <div class="content-body" id="content-body"></div>
+    <div class="content-body" id="content-body"><div class="content-placeholder"><div class="cp-icon">👈</div><div id="cp-text">Sélectionnez une rubrique dans le menu</div></div></div>
   </div>
+  </div><!-- /#app-body -->
 
 </div>
 <!-- Lang picker -->
@@ -930,6 +955,8 @@ function renderAll(){
   const hd=document.getElementById('hdr-date');
   if(hd) hd.innerHTML=now.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{weekday:'short',day:'numeric',month:'short'}).replace(/^\w/,c=>c.toUpperCase())+'<br>'+now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
   renderNavGrid();
+  const cpt=document.getElementById('cp-text');
+  if(cpt){const cpTxt={fr:'Sélectionnez une rubrique dans le menu',nl:'Selecteer een rubriek in het menu',en:'Select a section from the menu'};cpt.textContent=cpTxt[LANG]||cpTxt.fr;}
 }
 
 
@@ -1244,7 +1271,7 @@ function renderNavGrid(){
     if(tab.id==='annonces'   && DATA.annonces.some(a=>a.isNew)) badge=`<span class="nav-card-badge">${newLabel}</span>`;
     if(tab.id==='evenements' && DATA.events.filter(eventVisible).some(e=>e.isNew)) badge=`<span class="nav-card-badge">${newLabel}</span>`;
 
-    return `<div class="nav-card${isRed?' red-card':''}${isFull?' full':''}" onclick="openContent('${tab.id}')">
+    return `<div class="nav-card${isRed?' red-card':''}${isFull?' full':''}" data-tab="${tab.id}" onclick="openContent('${tab.id}')">
       ${badge}
       <div class="nav-card-icon">${iconSvg}</div>
       ${isFull
@@ -1344,14 +1371,25 @@ function openContent(tabId){
 
   // Afficher + mémoriser l'onglet actif pour le changement de langue
   cs.dataset.activeTab=tabId;
-  document.getElementById('home-screen').style.display='none';
-  cs.style.display='block';
-  window.scrollTo(0,0);
-  // Pousse un état pour que le bouton retour smartphone revienne au menu
-  history.pushState({panel:'content', tabId}, '');
+  if(isDesktop()){
+    document.querySelectorAll('.nav-card').forEach(c=>c.removeAttribute('data-active'));
+    document.querySelector(`.nav-card[data-tab="${tabId}"]`)?.setAttribute('data-active','');
+    cs.scrollTo(0,0);
+  } else {
+    document.getElementById('home-screen').style.display='none';
+    cs.style.display='block';
+    window.scrollTo(0,0);
+    history.pushState({panel:'content', tabId}, '');
+  }
 }
 
+function isDesktop(){return window.innerWidth>=860;}
+
 function _doGoHome(){
+  if(isDesktop()){
+    document.querySelectorAll('.nav-card').forEach(c=>c.removeAttribute('data-active'));
+    return;
+  }
   document.getElementById('content-screen').style.display='none';
   document.getElementById('home-screen').style.display='block';
   window.scrollTo(0,0);

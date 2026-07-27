@@ -100,6 +100,13 @@ main{padding:12px 12px 100px;}
 .rule-num{position:absolute;top:10px;right:11px;font-size:26px;font-weight:900;color:var(--accent-bg2);line-height:1;}
 .rule-card h3{font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.3;overflow-wrap:break-word;}
 .rule-card p{font-size:12px;color:var(--muted);line-height:1.55;overflow-wrap:break-word;}
+.rule-md{font-size:12px;color:var(--muted);line-height:1.55;overflow-wrap:break-word;}
+.rule-md p{margin:0 0 4px;}
+.rule-md h1,.rule-md h2,.rule-md h3{font-size:12px;font-weight:700;color:var(--text);margin:5px 0 2px;}
+.rule-md ul{padding-left:14px;margin:0 0 4px;}
+.rule-md li{margin-bottom:2px;}
+.rule-md strong{font-weight:700;color:var(--text);}
+.rule-md a{color:var(--accent);text-decoration:underline;}
 
 /* ═══ CONTACTS ════════════════════════════════════════════ */
 .contacts-list{display:flex;flex-direction:column;gap:8px;}
@@ -138,6 +145,12 @@ main{padding:12px 12px 100px;}
 .annonce-date{font-size:10px;color:var(--muted);}
 .annonce-title{font-weight:700;font-size:14px;margin-bottom:3px;overflow-wrap:break-word;}
 .annonce-text{font-size:12px;color:var(--muted);line-height:1.55;overflow-wrap:break-word;}
+.annonce-text p{margin:0 0 5px;}
+.annonce-text h1,.annonce-text h2,.annonce-text h3{font-size:12px;font-weight:700;color:var(--text);margin:6px 0 3px;}
+.annonce-text ul{padding-left:14px;margin:0 0 5px;}
+.annonce-text li{margin-bottom:2px;}
+.annonce-text strong{font-weight:700;color:var(--text);}
+.annonce-text a{color:var(--accent);text-decoration:underline;}
 .new-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:4px;vertical-align:middle;}
 
 /* ═══ ÉVÉNEMENTS ══════════════════════════════════════════ */
@@ -1578,7 +1591,7 @@ function buildRegles(){
     const d=r[LANG]||r.fr||{};
     return `<div class="rule-card"><div class="rule-num">${i+1}</div>
       <div class="rule-icon-wrap">${RULE_ICONS[i%RULE_ICONS.length]}</div>
-      <h3>${esc(d.titre||'')}</h3><p>${esc(d.texte||'')}</p></div>`;
+      <h3>${esc(d.titre||'')}</h3><div class="rule-md">${libreMarkdownToHtml(d.texte||'')}</div></div>`;
   }).join('')+`</div>`;
 }
 
@@ -1628,7 +1641,7 @@ function buildAnnonces(){
     const newDot=a.isNew?'<span class="new-dot" title="Nouveau"></span>':'';
     return `<div class="annonce-card"><div class="annonce-icon ${a.type}">${icons[a.type]||icons.normal}</div>
       <div class="annonce-body"><div class="annonce-top">${badge}${newDot}<span class="annonce-date">${dateStr}</span></div>
-      <div class="annonce-title">${esc(d2.titre||'')}</div><div class="annonce-text">${esc(d2.texte||'')}</div></div></div>`;
+      <div class="annonce-title">${esc(d2.titre||'')}</div><div class="annonce-text">${libreMarkdownToHtml(d2.texte||'')}</div></div></div>`;
   }).join('')+`</div>`;
 }
 

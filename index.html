@@ -1308,6 +1308,16 @@ function renderLibreContent(txt){
   return _markdownToHtml(txt);
 }
 
+function _binTagToSvg(html){
+  const BIN={bleu:{m:'#1E88E5',d:'#1565C0'},jaune:{m:'#FDD835',d:'#F57F17'},gris:{m:'#757575',d:'#212121'},vert:{m:'#43A047',d:'#1B5E20'},rouge:{m:'#E53935',d:'#B71C1C'}};
+  html=html.replace(/\[bin:(bleu|jaune|gris|vert|rouge)\]/gi,(_,k)=>{
+    const c=BIN[k.toLowerCase()]||BIN.bleu;
+    return `<svg viewBox="0 0 18 23" width="14" height="18" style="display:inline-block;vertical-align:middle;margin:0 2px 2px"><rect x="5" y="0.5" width="8" height="2" rx="1" fill="${c.d}"/><rect x="0.5" y="2.5" width="17" height="3" rx="1.5" fill="${c.d}"/><polygon points="1.5,5.5 16.5,5.5 15,22 3,22" fill="${c.m}"/><line x1="7.3" y1="7.5" x2="7" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="9" y1="7.5" x2="9" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="10.7" y1="7.5" x2="11" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/></svg>`;
+  });
+  html=html.replace(/\[bin:verre\]/gi,()=>`<svg viewBox="0 0 22 22" width="16" height="16" style="display:inline-block;vertical-align:middle;margin:0 2px 2px"><path d="M2 12 Q2 2 11 2 Q20 2 20 12 L20 18 Q20 21 11 21 Q2 21 2 18 Z" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/><path d="M3 12 Q3 3 11 3 Q19 3 19 12" fill="none" stroke="#B0BEC5" stroke-width="0.8"/><ellipse cx="11" cy="6" rx="2.8" ry="1.6" fill="#546E7A"/></svg>`);
+  return html;
+}
+
 function _markdownToHtml(text){
   if(!text) return '';
   let html=text;
@@ -1321,7 +1331,7 @@ function _markdownToHtml(text){
   html=html.replace(/\[(.*?)\]\((.*?)\)/g,(m,label,url)=>`<a class="libre-link" href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`);
   html=html.replace(/^- (.*?)$/gm,'<li>$1</li>');
   html=html.split('\n\n').map(p=>p.match(/^<[holi]/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
-  return html;
+  return _binTagToSvg(html);
 }
 
 function openContent(tabId){

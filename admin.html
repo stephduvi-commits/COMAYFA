@@ -2112,11 +2112,21 @@ function buildAdminEvents(){
 }
 
 /* ── COMAYFA MARKDOWN EDITOR ── */
+function _binTagToSvg(html){
+  const BIN={bleu:{m:'#1E88E5',d:'#1565C0'},jaune:{m:'#FDD835',d:'#F57F17'},gris:{m:'#757575',d:'#212121'},vert:{m:'#43A047',d:'#1B5E20'},rouge:{m:'#E53935',d:'#B71C1C'}};
+  html=html.replace(/\[bin:(bleu|jaune|gris|vert|rouge)\]/gi,(_,k)=>{
+    const c=BIN[k.toLowerCase()]||BIN.bleu;
+    return `<svg viewBox="0 0 18 23" width="14" height="18" style="display:inline-block;vertical-align:middle;margin:0 2px 2px"><rect x="5" y="0.5" width="8" height="2" rx="1" fill="${c.d}"/><rect x="0.5" y="2.5" width="17" height="3" rx="1.5" fill="${c.d}"/><polygon points="1.5,5.5 16.5,5.5 15,22 3,22" fill="${c.m}"/><line x1="7.3" y1="7.5" x2="7" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="9" y1="7.5" x2="9" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/><line x1="10.7" y1="7.5" x2="11" y2="20" stroke="${c.d}" stroke-width="1" opacity="0.4" stroke-linecap="round"/></svg>`;
+  });
+  html=html.replace(/\[bin:verre\]/gi,()=>`<svg viewBox="0 0 22 22" width="16" height="16" style="display:inline-block;vertical-align:middle;margin:0 2px 2px"><path d="M2 12 Q2 2 11 2 Q20 2 20 12 L20 18 Q20 21 11 21 Q2 21 2 18 Z" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/><path d="M3 12 Q3 3 11 3 Q19 3 19 12" fill="none" stroke="#B0BEC5" stroke-width="0.8"/><ellipse cx="11" cy="6" rx="2.8" ry="1.6" fill="#546E7A"/></svg>`);
+  return html;
+}
+
 function libreMarkdownToHtml(text){
   if(!text) return '';
   if(/<[a-z][^>]*>/i.test(text)){
     let h=text.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
-    return h;
+    return _binTagToSvg(h);
   }
   let html=text;
   html=html.replace(/\[(\d+)\]/g,'<span class="libre-nb">$1</span>');
@@ -2129,7 +2139,7 @@ function libreMarkdownToHtml(text){
   html=html.replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   html=html.replace(/^- (.*?)$/gm,'<li>$1</li>');
   html=html.split('\n\n').map(p=>p.match(/^<[holi]/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
-  return html;
+  return _binTagToSvg(html);
 }
 
 /* ── GLOBAL EDITOR MODAL ── */
@@ -2233,7 +2243,7 @@ function _libreSymHtml(){
     return {html:`<button class="sym-btn sym-bin" onclick="libreEditorInsertSym('${txt}')" title="${tip}">${svgBin}</button>`};
   }
   const svgGlass=`<svg viewBox="0 0 22 22" width="26" height="26" style="display:block"><path d="M2 12 Q2 2 11 2 Q20 2 20 12 L20 18 Q20 21 11 21 Q2 21 2 18 Z" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.5"/><path d="M3 12 Q3 3 11 3 Q19 3 19 12" fill="none" stroke="#B0BEC5" stroke-width="0.8"/><ellipse cx="11" cy="6" rx="2.8" ry="1.6" fill="#546E7A"/></svg>`;
-  const glassBtn={html:`<button class="sym-btn sym-bin" onclick="libreEditorInsertSym('🫙 Verre — ')" title="Bulle à verres">${svgGlass}</button>`};
+  const glassBtn={html:`<button class="sym-btn sym-bin" onclick="libreEditorInsertSym('[bin:verre] Verre — ')" title="Bulle à verres">${svgGlass}</button>`};
 
   const cats=[
     ['🚪 Évacuation & Sorties',['🚪','🚪 ← Sortie','🚪 → Sortie','🏃','🏃‍♀️','🪜','⬆️','⬇️','↩️','🛟']],
@@ -2243,11 +2253,11 @@ function _libreSymHtml(){
     ['🍽️ Restauration',['🍽️','🍴','🥘','🍲','🥗','🥛','☕','🍞','🍎','🥤']],
     ['♻️ Déchets & Environnement',['🗑️','♻️','🟦','🟩','🟧','🟥','🟨','⚫','📦','🌍']],
     ['🗑️ Poubelles colorées',[
-      binBtn('#1E88E5','#1565C0','🔵 PMC — ','Poubelle bleue — PMC (plastiques, métaux, cartons)'),
-      binBtn('#FDD835','#F57F17','🟡 Papier/Carton — ','Poubelle jaune — Papier/Carton'),
-      binBtn('#757575','#212121','⚫ Ménagers — ','Poubelle grise/noire — Déchets ménagers'),
-      binBtn('#43A047','#1B5E20','🟢 Organiques — ','Poubelle verte — Déchets organiques'),
-      binBtn('#E53935','#B71C1C','🔴 ','Poubelle rouge'),
+      binBtn('#1E88E5','#1565C0','[bin:bleu] PMC — ','Poubelle bleue — PMC (plastiques, métaux, cartons)'),
+      binBtn('#FDD835','#F57F17','[bin:jaune] Papier/Carton — ','Poubelle jaune — Papier/Carton'),
+      binBtn('#757575','#212121','[bin:gris] Ménagers — ','Poubelle grise/noire — Déchets ménagers'),
+      binBtn('#43A047','#1B5E20','[bin:vert] Organiques — ','Poubelle verte — Déchets organiques'),
+      binBtn('#E53935','#B71C1C','[bin:rouge] ','Poubelle rouge'),
       glassBtn,
     ]],
     ['🏥 Santé & Hygiène',['🏥','🩺','💊','🩹','💉','🧼','🧴','🧻','🚰','😷']],

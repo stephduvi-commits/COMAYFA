@@ -2320,7 +2320,18 @@ async function libreEditorCopy(tgtLang){
     const results=[];
     for(const para of paras){
       if(!para.trim()){results.push(para);continue;}
-      const chunk=para.substring(0,500);
+      // Lignes de séparation → passer tel quel sans traduire
+      if(para.split('\n').every(l=>!l.trim()||/^[-=+]{3,}$/.test(l.trim()))){
+        results.push(para);continue;
+      }
+      // Protéger les tokens markdown avec des placeholders {{N}}
+      const toks=[];
+      const safe=para
+        .replace(/\[bin:[a-z]+\]/gi,m=>{const i=toks.length;toks.push(m);return`{{${i}}}`;})
+        .replace(/\[\d+\]/g,m=>{const i=toks.length;toks.push(m);return`{{${i}}}`;})
+        .replace(/\*\*/g,()=>{const i=toks.length;toks.push('**');return`{{${i}}}`;})
+        .replace(/~~/g,()=>{const i=toks.length;toks.push('~~');return`{{${i}}}`;});
+      const chunk=safe.substring(0,500);
       const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${src}|${tgt}&de=steph.duvi@gmail.com`;
       const r=await fetch(url);
       const d=await r.json();
@@ -2329,7 +2340,8 @@ async function libreEditorCopy(tgtLang){
       }
       const t=d.responseData?.translatedText||'';
       if(d.responseStatus===200&&t&&!t.toUpperCase().includes('MYMEMORY WARNING')){
-        results.push(t+(para.length>500?' [suite…]':''));
+        const restored=t.replace(/\{\{\s*(\d+)\s*\}\}/g,(_,i)=>toks[+i]??'');
+        results.push(restored+(para.length>500?' [suite…]':''));
       } else {
         showToast('⚠️ Traduction indisponible');return;
       }

@@ -171,8 +171,10 @@ main{padding:12px 12px 100px;}
 /* ═══ TEXTE LIBRE ══════════════════════════════════════════ */
 .free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.7;overflow-wrap:break-word;}
 /* COMAYFA Editor — modal global */
-.btn-edit-open{position:absolute;top:6px;right:6px;background:var(--accent);color:white;border:none;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:13px;line-height:1.5;z-index:1;transition:opacity .15s;}
-.btn-edit-open:hover{opacity:.75;}
+.edit-wrap{display:flex;flex-direction:column;gap:4px;}
+.btn-edit-open{width:100%;background:var(--accent);color:white;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;letter-spacing:.2px;font-family:inherit;}
+.btn-edit-open:hover{background:var(--accent-dk);}
+.btn-edit-open svg{width:15px;height:15px;flex-shrink:0;}
 #libre-editor-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:none;align-items:center;justify-content:center;padding:10px;}
 #libre-editor-overlay.open{display:flex;}
 #libre-editor-modal{background:white;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.35);width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -1942,17 +1944,17 @@ function buildAdminRegles(){
         <div class="active" id="lf-r-${i}-fr">
           <label>Titre FR</label><input type="text" id="rt-${i}-fr" value="${escVal((r.fr||{}).titre||'')}">
           <label>Texte FR</label>
-          <div style="position:relative"><textarea id="rx-${i}-fr">${escVal((r.fr||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','fr')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="rx-${i}-fr">${escVal((r.fr||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
         <div id="lf-r-${i}-nl">
           <label>Titre NL</label><input type="text" id="rt-${i}-nl" value="${escVal((r.nl||{}).titre||'')}">
           <label>Tekst NL</label>
-          <div style="position:relative"><textarea id="rx-${i}-nl">${escVal((r.nl||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','nl')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="rx-${i}-nl">${escVal((r.nl||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','nl')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
         <div id="lf-r-${i}-en">
           <label>Titre EN</label><input type="text" id="rt-${i}-en" value="${escVal((r.en||{}).titre||'')}">
           <label>Text EN</label>
-          <div style="position:relative"><textarea id="rx-${i}-en">${escVal((r.en||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','en')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="rx-${i}-en">${escVal((r.en||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('rx-${i}-fr','rx-${i}-nl','rx-${i}-en','Règle ${i+1}','en')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
       </div>
     </div>`;
@@ -2047,17 +2049,17 @@ function buildAdminAnnonces(){
         <div class="active" id="lf-a-${i}-fr">
           <label>Titre FR</label><input type="text" id="an-${i}-fr" value="${escVal((a.fr||{}).titre||'')}">
           <label>Texte FR</label>
-          <div style="position:relative"><textarea id="ax-${i}-fr">${escVal((a.fr||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','fr')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="ax-${i}-fr">${escVal((a.fr||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
         <div id="lf-a-${i}-nl">
           <label>Titre NL</label><input type="text" id="an-${i}-nl" value="${escVal((a.nl||{}).titre||'')}">
           <label>Tekst NL</label>
-          <div style="position:relative"><textarea id="ax-${i}-nl">${escVal((a.nl||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','nl')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="ax-${i}-nl">${escVal((a.nl||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','nl')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
         <div id="lf-a-${i}-en">
           <label>Titre EN</label><input type="text" id="an-${i}-en" value="${escVal((a.en||{}).titre||'')}">
           <label>Text EN</label>
-          <div style="position:relative"><textarea id="ax-${i}-en">${escVal((a.en||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','en')">✏️</button></div>
+          <div class="edit-wrap"><textarea id="ax-${i}-en">${escVal((a.en||{}).texte||'')}</textarea><button class="btn-edit-open" onclick="openLibreEditor('ax-${i}-fr','ax-${i}-nl','ax-${i}-en','Annonce ${i+1}','en')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button></div>
         </div>
       </div>
     </div>`;
@@ -2305,9 +2307,9 @@ function buildAdminLibre(tabId){
   const label=esc(tab?tl(tab.nom):tabId);
   const pane=(lang,lbl,active)=>`<div id="lf-libre-${tabId}-${lang}"${active?' class="active"':''}>
     <label>${lbl}</label>
-    <div style="position:relative">
+    <div class="edit-wrap">
       <textarea id="libre-${lang}-${tabId}">${escVal(cc[lang]||'')}</textarea>
-      <button class="btn-edit-open" onclick="openLibreEditor('libre-fr-${tabId}','libre-nl-${tabId}','libre-en-${tabId}','${label} — Libre','${lang}')">✏️</button>
+      <button class="btn-edit-open" onclick="openLibreEditor('libre-fr-${tabId}','libre-nl-${tabId}','libre-en-${tabId}','${label} — Libre','${lang}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Ouvrir l'éditeur</button>
     </div></div>`;
   return `<div class="form-section"><div class="form-section-title">✏️ Contenu texte libre</div>
     <div class="lang-tabs">

@@ -884,8 +884,8 @@ function changeLang(lang){
   const cs=document.getElementById('content-screen');
   const activeTabId=cs?.dataset?.activeTab;
   const contentVisible=cs?.style?.display==='block'||isDesktop();
+  renderNavGrid();
   if(activeTabId&&contentVisible) openContent(activeTabId);
-  else renderNavGrid();
 }
 function showLangPicker(){
   document.getElementById('lang-picker').style.display='block';

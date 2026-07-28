@@ -883,7 +883,8 @@ function changeLang(lang){
   if(sub) sub.textContent=DATA.sousTitre;
   const cs=document.getElementById('content-screen');
   const activeTabId=cs?.dataset?.activeTab;
-  if(activeTabId) openContent(activeTabId);
+  const contentVisible=cs?.style?.display==='block'||isDesktop();
+  if(activeTabId&&contentVisible) openContent(activeTabId);
   else renderNavGrid();
 }
 function showLangPicker(){
@@ -1279,6 +1280,7 @@ const LOGO_SVGS={
   singlebed:   _s+`<path d="M4.5 19.5v-6.5a1.5 1.5 0 0 1 1.5-1.5h12a1.5 1.5 0 0 1 1.5 1.5v6.5"/><line x1="4.5" y1="19.5" x2="19.5" y2="19.5"/><path d="M4.5 8c1.6-1.5 2.9 1 4.6 0M9.7 8c1.6-1.5 2.9 1 4.6 0M14.9 8c1.6-1.5 2.9 1 4.6 0" stroke-width="1.1"/><path d="M6.5 11.5v-2M17.5 11.5v-2"/>`+_e,
   spa:         _s+`<path d="M12 5c1.6 1.8 2.4 3.4 2.4 5a2.4 2.4 0 1 1-4.8 0c0-1.6.8-3.2 2.4-5Z"/><path d="M7 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M17 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M5 19.5c1.6-1.2 3-1.7 4.4-1.7M19 19.5c-1.6-1.2-3-1.7-4.4-1.7"/>`+_e,
   vip:         _s+`<rect x="4.5" y="8.5" width="15" height="8" rx="2"/><text x="12" y="14.3" font-size="5.6" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800" letter-spacing="0.2">VIP</text>`+_e,
+  elu:         _s+`<rect x="4.5" y="8.5" width="15" height="8" rx="2"/><text x="12" y="14.3" font-size="5.6" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800" letter-spacing="0.2">ELU</text>`+_e,
   wifi:        _s+`<rect x="3.5" y="6" width="17" height="12" rx="1.8"/><path d="M8 12a5.5 5.5 0 0 1 8 0"/><path d="M9.8 14a2.9 2.9 0 0 1 4.4 0"/><circle cx="12" cy="15.6" r="0.6" fill="#DB8A3C" stroke="none"/><line x1="10" y1="20" x2="14" y2="20"/>`+_e,
 };
 
@@ -1377,7 +1379,7 @@ function renderLibreContent(txt){
     let html=txt.replace(/<a\b(?![^>]*\btarget\b)/gi,'<a target="_blank" rel="noopener noreferrer" ');
     html=html.replace(/(>[^<]*?<)/g, seg=>seg.replace(/(https?:\/\/[^\s<&"']+)/g,
       u=>`<a class="libre-link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`));
-    return html;
+    return _binTagToSvg(html);
   }
   return _markdownToHtml(txt);
 }

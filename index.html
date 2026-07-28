@@ -305,23 +305,86 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* ═══ DISPOSITION BUREAU (≥860px) ══════════════════════════ */
 @media(min-width:860px){
   html,body{overflow:hidden;height:100%;}
-  body{background:#D8DCE8;}
-  #app{height:100vh;max-width:1280px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.18);overflow:hidden;}
-  #app-body{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 54px);overflow:hidden;}
-  #home-screen{display:block !important;overflow-y:auto;height:100%;background:var(--white);border-right:1px solid var(--border);padding:14px 12px 20px;}
+  body{background:#CDD1DC;}
+
+  /* ── App shell ── */
+  #app{height:100vh;width:100%;overflow:hidden;}
+  #app-body{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 54px);overflow:hidden;}
+
+  /* ── Left sidebar ── */
+  #home-screen{
+    display:block !important;overflow-y:auto;height:100%;
+    background:var(--white);
+    border-right:1px solid var(--border);
+    box-shadow:2px 0 6px rgba(0,0,0,.06);
+    padding:10px 8px 24px;
+  }
+  .home-greeting{padding:9px 12px;margin-bottom:10px;}
+  .home-greeting-icon{font-size:18px;}
+  .home-greeting-text h2{font-size:13px;}
+  .home-greeting-text p{font-size:11px;}
+
+  /* Nav grid → single column list */
+  .nav-grid{grid-template-columns:1fr;gap:3px;margin-bottom:0;}
+
+  /* All nav cards become sidebar list items via CSS grid */
+  .nav-card,.nav-card.full{
+    display:grid;
+    grid-template-columns:34px 1fr;
+    grid-template-rows:auto auto;
+    column-gap:10px;
+    align-items:center;
+    text-align:left;
+    min-height:auto;
+    padding:8px 12px;
+    border-radius:var(--r-sm);
+    border-top:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    grid-column:auto !important;
+    transition:background .12s,border-left-color .12s;
+  }
+  .nav-card.red-card{border-left-color:var(--red);border-top:1px solid var(--border);}
+  .nav-card:active{transform:none;}
+  .nav-card:hover:not([data-active]){background:var(--accent-bg);border-left-color:var(--accent-dk);}
+  .nav-card.red-card:hover:not([data-active]){background:var(--red-bg);border-left-color:var(--red);}
+
+  /* Icon: spans both rows */
+  .nav-card-icon{grid-column:1;grid-row:1/3;margin:0;width:34px;height:34px;flex-shrink:0;}
+  /* Label: row 1 col 2 */
+  .nav-card-label{grid-column:2;grid-row:1;font-size:12px;font-weight:700;align-self:end;margin:0;}
+  /* Sub: row 2 col 2 */
+  .nav-card-sub{grid-column:2;grid-row:2;font-size:10px;margin:0;align-self:start;}
+  /* Full card text wrapper: transparent so children are direct grid items */
+  .nav-card-text{display:contents;}
+
+  /* Active state */
+  .nav-card[data-active]{background:var(--accent-bg) !important;border-left:3px solid var(--accent-dk) !important;border-top-color:var(--border) !important;box-shadow:none;}
+  .nav-card[data-active].red-card{background:var(--red-bg) !important;border-left-color:var(--red) !important;box-shadow:none;}
+
+  /* ── Right content panel ── */
   #content-screen{display:block !important;overflow-y:auto;height:100%;padding:0;background:var(--bg);}
+
+  /* Hide topbar when no tab is active (placeholder state) */
+  #content-screen:not([data-active-tab]) .content-topbar{display:none;}
   .content-topbar{position:sticky;top:0;z-index:10;}
   .back-btn-content{display:none;}
-  .content-body{padding:16px 20px 40px;}
+  .content-body{padding:20px 28px 40px;}
+
+  /* Placeholder: fills full panel, white, centered */
+  .content-placeholder{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:calc(100vh - 54px);
+    color:var(--muted);font-size:14px;text-align:center;padding:40px;
+    background:var(--white);
+  }
+  .cp-icon{font-size:60px;opacity:.15;margin-bottom:18px;}
+
+  /* Content grids */
   .rules-grid{grid-template-columns:1fr 1fr 1fr;}
   .contacts-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .annonces-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .events-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .horaires-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .nav-card[data-active]{background:var(--accent-bg) !important;border-top-color:var(--accent-dk) !important;box-shadow:inset 0 0 0 2px var(--accent);}
-  .nav-card[data-active].red-card{background:var(--red-bg) !important;border-top-color:var(--red) !important;box-shadow:inset 0 0 0 2px var(--red);}
-  .content-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 110px);color:var(--muted);font-size:14px;text-align:center;padding:40px;}
-  .cp-icon{font-size:52px;opacity:.25;margin-bottom:14px;}
 }
 @media(max-width:859px){.content-placeholder{display:none;}}
 
@@ -403,7 +466,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       </button>
       <div class="content-topbar-title" id="content-topbar-title">—</div>
     </div>
-    <div class="content-body" id="content-body"><div class="content-placeholder"><div class="cp-icon">👈</div><div id="cp-text">Sélectionnez une rubrique dans le menu</div></div></div>
+    <div class="content-body" id="content-body"><div class="content-placeholder">
+      <svg viewBox="0 0 80 80" width="80" height="80" style="opacity:.12;margin-bottom:18px" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="64" height="64" rx="14"/><path d="M28 40h24M28 52h16"/><path d="M36 28h16a4 4 0 010 8H36a4 4 0 010-8z"/></svg>
+      <div id="cp-text" style="font-size:15px;font-weight:700;color:var(--text);opacity:.35;margin-bottom:8px">Sélectionnez une rubrique</div>
+      <div id="cp-sub" style="font-size:12px;color:var(--muted);max-width:200px;line-height:1.5">Choisissez une section dans le menu de gauche</div>
+    </div></div>
   </div>
   </div><!-- /#app-body -->
 
@@ -814,14 +881,10 @@ function changeLang(lang){
   const sub=document.getElementById('hdr-subtitle');
   if(ttl) ttl.textContent=DATA.titre;
   if(sub) sub.textContent=DATA.sousTitre;
-  // Si on est dans un sous-menu, recharger ce contenu dans la nouvelle langue
   const cs=document.getElementById('content-screen');
-  if(cs && cs.style.display==='block'){
-    const activeTabId=cs.dataset.activeTab;
-    if(activeTabId) openContent(activeTabId);
-  } else {
-    renderNavGrid();
-  }
+  const activeTabId=cs?.dataset?.activeTab;
+  if(activeTabId) openContent(activeTabId);
+  else renderNavGrid();
 }
 function showLangPicker(){
   document.getElementById('lang-picker').style.display='block';
@@ -965,7 +1028,9 @@ function renderAll(){
   if(hd) hd.innerHTML=now.toLocaleDateString(LANG==='nl'?'nl-BE':LANG==='en'?'en-GB':'fr-BE',{weekday:'short',day:'numeric',month:'short'}).replace(/^\w/,c=>c.toUpperCase())+'<br>'+now.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
   renderNavGrid();
   const cpt=document.getElementById('cp-text');
-  if(cpt){const cpTxt={fr:'Sélectionnez une rubrique dans le menu',nl:'Selecteer een rubriek in het menu',en:'Select a section from the menu'};cpt.textContent=cpTxt[LANG]||cpTxt.fr;}
+  if(cpt){const cpTxt={fr:'Sélectionnez une rubrique',nl:'Selecteer een rubriek',en:'Select a section'};cpt.textContent=cpTxt[LANG]||cpTxt.fr;}
+  const cps=document.getElementById('cp-sub');
+  if(cps){const cpSub={fr:'Choisissez une section dans le menu de gauche',nl:'Kies een sectie in het linkermenu',en:'Choose a section from the left menu'};cps.textContent=cpSub[LANG]||cpSub.fr;}
 }
 
 

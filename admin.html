@@ -110,7 +110,9 @@ main{padding:12px 12px 100px;}
 .rule-md li{margin-bottom:2px;}
 .rule-md strong{font-weight:700;color:var(--text);}
 .rule-md a{color:var(--accent);text-decoration:underline;}
-.rule-md hr{border:none;border-top:1.5px solid var(--border);margin:8px 0;}
+.rule-md hr{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.rule-md hr.hr-md{border-top:2.5px solid var(--accent);opacity:.45;}
+.rule-md hr.hr-tk{border-top:5px solid var(--text);opacity:.25;border-radius:3px;}
 
 /* ═══ CONTACTS ════════════════════════════════════════════ */
 .contacts-list{display:flex;flex-direction:column;gap:8px;}
@@ -155,7 +157,9 @@ main{padding:12px 12px 100px;}
 .annonce-text li{margin-bottom:2px;}
 .annonce-text strong{font-weight:700;color:var(--text);}
 .annonce-text a{color:var(--accent);text-decoration:underline;}
-.annonce-text hr{border:none;border-top:1.5px solid var(--border);margin:8px 0;}
+.annonce-text hr{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.annonce-text hr.hr-md{border-top:2.5px solid var(--accent);opacity:.45;}
+.annonce-text hr.hr-tk{border-top:5px solid var(--text);opacity:.25;border-radius:3px;}
 .new-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:4px;vertical-align:middle;}
 
 /* ═══ ÉVÉNEMENTS ══════════════════════════════════════════ */
@@ -172,7 +176,9 @@ main{padding:12px 12px 100px;}
 
 /* ═══ TEXTE LIBRE ══════════════════════════════════════════ */
 .free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.7;overflow-wrap:break-word;}
-.free-content hr{border:none;border-top:1.5px solid var(--border);margin:12px 0;}
+.free-content hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
+.free-content hr.hr-md{border-top:2.5px solid var(--accent);opacity:.45;}
+.free-content hr.hr-tk{border-top:5px solid var(--text);opacity:.25;border-radius:3px;}
 /* COMAYFA Editor — modal global */
 .edit-wrap{display:flex;flex-direction:column;gap:4px;}
 .btn-edit-open{width:100%;background:var(--accent);color:white;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;letter-spacing:.2px;font-family:inherit;}
@@ -214,7 +220,9 @@ main{padding:12px 12px 100px;}
 .libre-phone-content ul{padding-left:14px;margin:0 0 7px;}
 .libre-phone-content li{margin-bottom:3px;}
 .libre-phone-content a{color:var(--accent);text-decoration:underline;}
-.libre-phone-content hr{border:none;border-top:1.5px solid var(--border);margin:10px 0;}
+.libre-phone-content hr{border:none;border-top:1px solid var(--border);margin:10px 0;}
+.libre-phone-content hr.hr-md{border-top:2.5px solid var(--accent);opacity:.45;}
+.libre-phone-content hr.hr-tk{border-top:5px solid var(--text);opacity:.25;border-radius:3px;}
 .libre-nb{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:50%;background:var(--accent);color:white;font-weight:700;font-size:10px;margin-right:5px;padding:0 2px;flex-shrink:0;}
 #libre-editor-footer{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8f9fa;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
 @media(max-width:768px){#libre-editor-preview-wrap{display:none;}#libre-editor-modal{border-radius:0;max-height:100vh;}#libre-editor-overlay{padding:0;}}
@@ -787,7 +795,9 @@ body {background:#ECEEF4;}
       <div class="libre-tg">
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertList()" title="Liste">• ≡</button>
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertLink()" title="Lien (sélectionner le texte d'abord)">🔗</button>
-        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertHR()" title="Ligne de séparation" style="letter-spacing:-1px">───</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertHR('---')" title="Séparateur fin (---)" style="font-size:10px;letter-spacing:1px">─</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertHR('===')" title="Séparateur moyen (===)" style="font-size:10px;color:var(--accent);font-weight:700;letter-spacing:1px">═</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertHR('+++')" title="Séparateur épais (+++)" style="font-size:10px;color:var(--text);font-weight:900;letter-spacing:1px">▬</button>
       </div>
       <div class="libre-tg">
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertNum()" title="Puce numérotée [N]">[N]</button>
@@ -1035,11 +1045,13 @@ const LOGO_SVGS={
   shower:      S+`<path d="M6 9.5A5 5 0 0 1 15.5 7"/><path d="M17.5 9.5A1.5 1.5 0 1 1 15 8.3"/><line x1="7.5" y1="9.5" x2="16.5" y2="9.5"/><line x1="9" y1="13" x2="9" y2="14.3"/><line x1="12" y1="13" x2="12" y2="14.3"/><line x1="15" y1="13" x2="15" y2="14.3"/><line x1="9" y1="16.5" x2="9" y2="17.8"/><line x1="12" y1="16.5" x2="12" y2="17.8"/><line x1="15" y1="16.5" x2="15" y2="17.8"/><rect x="4.7" y="9.5" width="2.6" height="4" rx="0.8"/>`+SE,
   singlebed:   S+`<path d="M4.5 19.5v-6.5a1.5 1.5 0 0 1 1.5-1.5h12a1.5 1.5 0 0 1 1.5 1.5v6.5"/><line x1="4.5" y1="19.5" x2="19.5" y2="19.5"/><path d="M4.5 8c1.6-1.5 2.9 1 4.6 0M9.7 8c1.6-1.5 2.9 1 4.6 0M14.9 8c1.6-1.5 2.9 1 4.6 0" stroke-width="1.1"/><path d="M6.5 11.5v-2M17.5 11.5v-2"/>`+SE,
   spa:         S+`<path d="M12 5c1.6 1.8 2.4 3.4 2.4 5a2.4 2.4 0 1 1-4.8 0c0-1.6.8-3.2 2.4-5Z"/><path d="M7 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M17 12.3c1.2 1.3 1.8 2.5 1.8 3.7a1.8 1.8 0 1 1-3.6 0c0-1.2.6-2.4 1.8-3.7Z"/><path d="M5 19.5c1.6-1.2 3-1.7 4.4-1.7M19 19.5c-1.6-1.2-3-1.7-4.4-1.7"/>`+SE,
+  elu:         S+`<rect x="4.5" y="8.5" width="15" height="8" rx="2"/><text x="12" y="14.3" font-size="5.6" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800" letter-spacing="0.2">ELU</text>`+SE,
   vip:         S+`<rect x="4.5" y="8.5" width="15" height="8" rx="2"/><text x="12" y="14.3" font-size="5.6" text-anchor="middle" fill="#DB8A3C" stroke="none" font-family="sans-serif" font-weight="800" letter-spacing="0.2">VIP</text>`+SE,
   wifi:        S+`<rect x="3.5" y="6" width="17" height="12" rx="1.8"/><path d="M8 12a5.5 5.5 0 0 1 8 0"/><path d="M9.8 14a2.9 2.9 0 0 1 4.4 0"/><circle cx="12" cy="15.6" r="0.6" fill="#DB8A3C" stroke="none"/><line x1="10" y1="20" x2="14" y2="20"/>`+SE,
 };
 const LOGO_PICKER=[
   {key:'wifi',          label:'WiFi'},
+  {key:'elu',           label:'ELU'},
   {key:'vip',           label:'VIP'},
   {key:'plan',          label:'Plan du Site'},
   {key:'liens',         label:'Liens utiles'},
@@ -2146,6 +2158,8 @@ function libreMarkdownToHtml(text){
   html=html.replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   html=html.replace(/^- (.*?)$/gm,'<li>$1</li>');
   html=html.replace(/^-{3,}$/gm,'<hr>');
+  html=html.replace(/^={3,}$/gm,'<hr class="hr-md">');
+  html=html.replace(/^\+{3,}$/gm,'<hr class="hr-tk">');
   html=html.split('\n\n').map(p=>p.match(/^<[holi]|^<hr/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
   return _binTagToSvg(html);
 }
@@ -2226,14 +2240,14 @@ function libreEditorInsertList(){
   libreEditorUpdatePreview();
 }
 
-function libreEditorInsertHR(){
+function libreEditorInsertHR(chars){
   const ta=document.getElementById('libre-editor-ta');
   if(!ta) return;
   const s=ta.selectionStart;
   const before=ta.value.substring(0,s);
   const after=ta.value.substring(s);
   const nl=(before.length&&!before.endsWith('\n'))?'\n':'';
-  const ins=nl+'---\n';
+  const ins=nl+(chars||'---')+'\n';
   ta.value=before+ins+after;
   ta.focus();ta.selectionStart=ta.selectionEnd=s+ins.length;
   libreEditorUpdatePreview();

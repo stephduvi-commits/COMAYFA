@@ -771,36 +771,36 @@ body {background:#ECEEF4;}
     </div>
     <div class="libre-toolbar">
       <div class="libre-tg">
-        <button onclick="libreEditorInsert('# ','Titre 1')">H1</button>
-        <button onclick="libreEditorInsert('## ','Titre 2')">H2</button>
-        <button onclick="libreEditorInsert('### ','Titre 3')">H3</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('# ','Titre 1','')">H1</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('## ','Titre 2','')">H2</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('### ','Titre 3','')">H3</button>
       </div>
       <div class="libre-tg">
-        <button onclick="libreEditorInsert('**','gras')"><b>G</b></button>
-        <button onclick="libreEditorInsert('_','ital')"><i>I</i></button>
-        <button onclick="libreEditorInsert('~~','barré')"><del>S</del></button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('**','gras')" title="Sélectionner du texte puis cliquer"><b>G</b></button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('_','ital')" title="Sélectionner du texte puis cliquer"><i>I</i></button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsert('~~','barré')" title="Sélectionner du texte puis cliquer"><del>S</del></button>
       </div>
       <div class="libre-tg">
-        <button onclick="libreEditorInsert('\n- ','item')" title="Liste">• ≡</button>
-        <button onclick="libreEditorInsert('[','lien](https://)')" title="Lien">🔗</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertList()" title="Liste">• ≡</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertLink()" title="Lien (sélectionner le texte d'abord)">🔗</button>
       </div>
       <div class="libre-tg">
-        <button onclick="libreEditorInsertNum()" title="Puce numérotée [N]">[N]</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertNum()" title="Puce numérotée [N]">[N]</button>
       </div>
       <div class="libre-tg">
-        <button onclick="libreEditorToggleSym()" title="Symboles">🔣</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorToggleSym()" title="Symboles">🔣</button>
         <button onclick="libreEditorClear()" title="Effacer tout" style="color:var(--red)">✕</button>
       </div>
     </div>
     <div class="libre-sym-panel" id="libre-editor-sym"></div>
     <div id="libre-editor-area">
-      <textarea id="libre-editor-ta" placeholder="Markdown :&#10;# Titre&#10;**gras** _italique_ ~~barré~~&#10;[N] puce numérotée&#10;- liste&#10;[texte](https://url)" oninput="libreEditorUpdatePreview()"></textarea>
+      <textarea id="libre-editor-ta" placeholder="Markdown :&#10;# Titre&#10;**gras** _italique_ ~~barré~~&#10;[N] puce numérotée&#10;- liste&#10;[texte](https://url)" spellcheck="true" oninput="libreEditorUpdatePreview()" onmouseup="libreEditorSelUpdate()" onkeyup="libreEditorSelUpdate()" onselect="libreEditorSelUpdate()"></textarea>
       <div id="libre-editor-preview-wrap">
         <div id="libre-editor-preview"><div class="libre-phone"><div class="libre-phone-content"></div></div></div>
       </div>
     </div>
     <div id="libre-editor-footer">
-      <span id="libre-editor-chars" style="color:var(--muted);font-size:12px;margin-right:auto">0 car.</span>
+      <span id="libre-editor-chars" style="font-size:12px;margin-right:auto;color:var(--muted);transition:color .15s">0 car.</span>
       <button class="btn btn-secondary" id="libre-editor-btn-fr" onclick="libreEditorCopy('fr')">→ FR</button>
       <button class="btn btn-secondary" id="libre-editor-btn-nl" onclick="libreEditorCopy('nl')">🔄 → NL</button>
       <button class="btn btn-secondary" id="libre-editor-btn-en" onclick="libreEditorCopy('en')">🔄 → EN</button>
@@ -2158,6 +2158,8 @@ function openLibreEditor(frId,nlId,enId,label,srcLang){
   document.getElementById('libre-editor-btn-fr').textContent=srcLang==='fr'?'→ FR':'🔄 → FR';
   document.getElementById('libre-editor-btn-nl').textContent=srcLang==='nl'?'→ NL':'🔄 → NL';
   document.getElementById('libre-editor-btn-en').textContent=srcLang==='en'?'→ EN':'🔄 → EN';
+  const langMap={fr:'fr',nl:'nl',en:'en'};
+  ta.lang=langMap[srcLang]||'fr';
   const sym=document.getElementById('libre-editor-sym');
   if(sym&&!sym.children.length) sym.innerHTML=_libreSymHtml();
   document.getElementById('libre-editor-overlay').classList.add('open');
@@ -2172,20 +2174,64 @@ function closeLibreEditor(){
 function libreEditorUpdatePreview(){
   const ta=document.getElementById('libre-editor-ta');
   const prev=document.getElementById('libre-editor-preview');
-  const chars=document.getElementById('libre-editor-chars');
   if(!ta||!prev) return;
   prev.innerHTML=`<div class="libre-phone"><div class="libre-phone-content">${libreMarkdownToHtml(ta.value)}</div></div>`;
-  if(chars) chars.textContent=ta.value.length+' car.';
+  libreEditorSelUpdate();
 }
 
-function libreEditorInsert(before,placeholder){
+function libreEditorInsert(before,placeholder,after){
   const ta=document.getElementById('libre-editor-ta');
   if(!ta) return;
   const s=ta.selectionStart,e=ta.selectionEnd;
   const sel=ta.value.substring(s,e)||placeholder;
-  ta.value=ta.value.substring(0,s)+before+sel+before+ta.value.substring(e);
+  const sfx=after!==undefined?after:before;
+  ta.value=ta.value.substring(0,s)+before+sel+sfx+ta.value.substring(e);
   ta.focus();ta.selectionStart=s+before.length;ta.selectionEnd=s+before.length+sel.length;
   libreEditorUpdatePreview();
+}
+
+function libreEditorInsertLink(){
+  const ta=document.getElementById('libre-editor-ta');
+  if(!ta) return;
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.substring(s,e)||'texte';
+  const ins=`[${sel}](https://)`;
+  ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);
+  ta.focus();
+  const us=s+sel.length+3;
+  ta.selectionStart=us;ta.selectionEnd=us+8;
+  libreEditorUpdatePreview();
+}
+
+function libreEditorInsertList(){
+  const ta=document.getElementById('libre-editor-ta');
+  if(!ta) return;
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  if(s===e){
+    const pfx=(s===0||ta.value[s-1]==='\n')?'':'\n';
+    ta.value=ta.value.substring(0,s)+pfx+'- '+ta.value.substring(s);
+    ta.focus();ta.selectionStart=ta.selectionEnd=s+pfx.length+2;
+  } else {
+    const block=ta.value.substring(s,e);
+    const listed=block.split('\n').map(l=>l?'- '+l:l).join('\n');
+    ta.value=ta.value.substring(0,s)+listed+ta.value.substring(e);
+    ta.focus();ta.selectionStart=s;ta.selectionEnd=s+listed.length;
+  }
+  libreEditorUpdatePreview();
+}
+
+function libreEditorSelUpdate(){
+  const ta=document.getElementById('libre-editor-ta');
+  const chars=document.getElementById('libre-editor-chars');
+  if(!ta||!chars) return;
+  const sel=ta.selectionEnd-ta.selectionStart;
+  if(sel>0){
+    chars.textContent=`✂ ${sel} sél. / ${ta.value.length} car.`;
+    chars.style.color='var(--accent)';chars.style.fontWeight='700';
+  } else {
+    chars.textContent=ta.value.length+' car.';
+    chars.style.color='var(--muted)';chars.style.fontWeight='';
+  }
 }
 
 function libreEditorInsertNum(){

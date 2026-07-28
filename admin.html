@@ -110,6 +110,7 @@ main{padding:12px 12px 100px;}
 .rule-md li{margin-bottom:2px;}
 .rule-md strong{font-weight:700;color:var(--text);}
 .rule-md a{color:var(--accent);text-decoration:underline;}
+.rule-md hr{border:none;border-top:1.5px solid var(--border);margin:8px 0;}
 
 /* ═══ CONTACTS ════════════════════════════════════════════ */
 .contacts-list{display:flex;flex-direction:column;gap:8px;}
@@ -154,6 +155,7 @@ main{padding:12px 12px 100px;}
 .annonce-text li{margin-bottom:2px;}
 .annonce-text strong{font-weight:700;color:var(--text);}
 .annonce-text a{color:var(--accent);text-decoration:underline;}
+.annonce-text hr{border:none;border-top:1.5px solid var(--border);margin:8px 0;}
 .new-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:4px;vertical-align:middle;}
 
 /* ═══ ÉVÉNEMENTS ══════════════════════════════════════════ */
@@ -170,6 +172,7 @@ main{padding:12px 12px 100px;}
 
 /* ═══ TEXTE LIBRE ══════════════════════════════════════════ */
 .free-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.7;overflow-wrap:break-word;}
+.free-content hr{border:none;border-top:1.5px solid var(--border);margin:12px 0;}
 /* COMAYFA Editor — modal global */
 .edit-wrap{display:flex;flex-direction:column;gap:4px;}
 .btn-edit-open{width:100%;background:var(--accent);color:white;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;letter-spacing:.2px;font-family:inherit;}
@@ -211,6 +214,7 @@ main{padding:12px 12px 100px;}
 .libre-phone-content ul{padding-left:14px;margin:0 0 7px;}
 .libre-phone-content li{margin-bottom:3px;}
 .libre-phone-content a{color:var(--accent);text-decoration:underline;}
+.libre-phone-content hr{border:none;border-top:1.5px solid var(--border);margin:10px 0;}
 .libre-nb{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:50%;background:var(--accent);color:white;font-weight:700;font-size:10px;margin-right:5px;padding:0 2px;flex-shrink:0;}
 #libre-editor-footer{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8f9fa;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
 @media(max-width:768px){#libre-editor-preview-wrap{display:none;}#libre-editor-modal{border-radius:0;max-height:100vh;}#libre-editor-overlay{padding:0;}}
@@ -783,6 +787,7 @@ body {background:#ECEEF4;}
       <div class="libre-tg">
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertList()" title="Liste">• ≡</button>
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertLink()" title="Lien (sélectionner le texte d'abord)">🔗</button>
+        <button onmousedown="event.preventDefault()" onclick="libreEditorInsertHR()" title="Ligne de séparation" style="letter-spacing:-1px">───</button>
       </div>
       <div class="libre-tg">
         <button onmousedown="event.preventDefault()" onclick="libreEditorInsertNum()" title="Puce numérotée [N]">[N]</button>
@@ -2140,7 +2145,8 @@ function libreMarkdownToHtml(text){
   html=html.replace(/~~(.*?)~~/g,'<del>$1</del>');
   html=html.replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   html=html.replace(/^- (.*?)$/gm,'<li>$1</li>');
-  html=html.split('\n\n').map(p=>p.match(/^<[holi]/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
+  html=html.replace(/^-{3,}$/gm,'<hr>');
+  html=html.split('\n\n').map(p=>p.match(/^<[holi]|^<hr/)? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('\n');
   return _binTagToSvg(html);
 }
 
@@ -2220,6 +2226,19 @@ function libreEditorInsertList(){
   libreEditorUpdatePreview();
 }
 
+function libreEditorInsertHR(){
+  const ta=document.getElementById('libre-editor-ta');
+  if(!ta) return;
+  const s=ta.selectionStart;
+  const before=ta.value.substring(0,s);
+  const after=ta.value.substring(s);
+  const nl=(before.length&&!before.endsWith('\n'))?'\n':'';
+  const ins=nl+'---\n';
+  ta.value=before+ins+after;
+  ta.focus();ta.selectionStart=ta.selectionEnd=s+ins.length;
+  libreEditorUpdatePreview();
+}
+
 function libreEditorSelUpdate(){
   const ta=document.getElementById('libre-editor-ta');
   const chars=document.getElementById('libre-editor-chars');
@@ -2278,24 +2297,31 @@ async function libreEditorCopy(tgtLang){
   }
   const txt=ta.value.trim();
   if(!txt){showToast('⚠️ Rien à traduire');return;}
-  if(txt.length>450){showToast('⚠️ Texte trop long — divisez en paragraphes');return;}
   showToast(`⏳ Traduction → ${tgtLang.toUpperCase()}…`);
   try{
     const langMap={fr:'fr-BE',nl:'nl-BE',en:'en-GB'};
     const src=langMap[_editCtx.srcLang]||_editCtx.srcLang;
     const tgt=langMap[tgtLang]||tgtLang;
-    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(txt)}&langpair=${src}|${tgt}&de=steph.duvi@gmail.com`;
-    const r=await fetch(url);
-    const d=await r.json();
-    const translated=d.responseData?.translatedText||'';
-    if(d.responseStatus===429||(d.responseDetails||'').toUpperCase().includes('USED ALL')){
-      showToast('⚠️ Quota journalier atteint — réessayez demain');
-    } else if(d.responseStatus===200 && translated && !translated.toUpperCase().includes('MYMEMORY WARNING')){
-      target.value=translated;
-      showToast(`✓ → ${tgtLang.toUpperCase()}`);
-    } else {
-      showToast('⚠️ Traduction indisponible');
+    const paras=txt.split('\n\n');
+    const results=[];
+    for(const para of paras){
+      if(!para.trim()){results.push(para);continue;}
+      const chunk=para.substring(0,500);
+      const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${src}|${tgt}&de=steph.duvi@gmail.com`;
+      const r=await fetch(url);
+      const d=await r.json();
+      if(d.responseStatus===429||(d.responseDetails||'').toUpperCase().includes('USED ALL')){
+        showToast('⚠️ Quota journalier atteint — réessayez demain');return;
+      }
+      const t=d.responseData?.translatedText||'';
+      if(d.responseStatus===200&&t&&!t.toUpperCase().includes('MYMEMORY WARNING')){
+        results.push(t+(para.length>500?' [suite…]':''));
+      } else {
+        showToast('⚠️ Traduction indisponible');return;
+      }
     }
+    target.value=results.join('\n\n');
+    showToast(`✓ → ${tgtLang.toUpperCase()}`);
   }catch(e){showToast('⚠️ Erreur réseau');}
 }
 
